@@ -87,19 +87,3 @@ int* parse(int ac, char* av[]){
 	parse_scheduler(av[8]);
 	return list;
 }
-
-
-int main(int ac, char* av[]){
-	int *list;
-
-	list = parse(ac, av);
-
-	for(int i= 0; i < 7; i++){
-		printf("list[%d]: %d\n", i, list[i]);
-	}
-	printf("Succes!");
-
-
-	// free(list);
-	return 0;
-}
