@@ -5,6 +5,10 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <errno.h>
+#include <sys/time.h>
+
+
 
 
 typedef struct Data{
@@ -27,6 +31,8 @@ typedef struct Dongle{
 
 
 typedef struct Coder{
+	Dongle *left_dongle;
+	Dongle *right_dongle;
 	int index;
 	pthread_t thread;
 	Data data;
@@ -36,19 +42,22 @@ typedef struct Coder{
 
 
 typedef struct Heap{
-	Coder **list;
+	Coder **Coders;
 	int size;
 }Heap;
 
+Dongle* create_dongle(int index);
 
+void fix_top(Heap *heap);
+void remove_top_heap(Heap* heap);
+
+Heap* create_heap_FIFO(Data data);
 Data	create_data(int* list, char* scheduler);
 
 
-Coder	**creating_coders(Data data, Dongle** Dongles, int* list);
-Dongle	**creating_dongles(Data data, Coder** Coders, int *list);
+Coder	**creating_coders(Data data, int* list);
 void	free_coders(Coder **coders_list, Data data);
-void	free_dongles(Dongle **dongles_list, Data data);
-void	free_and_exit(Dongle **dongles,Coder** coders, Data data, int* list);
+void	free_and_exit(Coder** coders, Data data, int* list);
 
 
 int*	parse(int ac, char* av[]);
@@ -58,5 +67,12 @@ int		ft_isalpha(int c);
 int		ft_str_len(const char* str);
 char*	str_tolower(char* str);
 int		ft_cmp(const char* s1, const char* s2);
+
+
+
+void debugging(Coder coder);
+void refactoring(Coder coder);
+void* compiling(void *arg);
+
 
 #endif
