@@ -1,6 +1,7 @@
 #include "my_header.h"
 
 
+
 void fix_top(Heap *heap)
 {
     Coder   *cur_coder;
@@ -44,7 +45,6 @@ void fix_top(Heap *heap)
     }
 }
 
-
 void remove_top_heap(Heap* heap)
 {
     Coder *tmp_coder;
@@ -69,6 +69,18 @@ void remove_top_heap(Heap* heap)
 
 }
 
+Coder* pop_heap(Heap* heap)
+{
+	Coder* top_coder;
+
+	if (heap->size == 0)
+		return NULL;
+	top_coder = heap->Coders[0];
+
+	remove_top_heap(heap);
+
+	return top_coder;
+}
 
 Heap* create_heap_FIFO(Data data)
 {
@@ -77,10 +89,51 @@ Heap* create_heap_FIFO(Data data)
 	heap = malloc(sizeof(Heap));
 	if (!heap)
 		return NULL;
-    
-    heap->Coders = malloc(sizeof(Coder *));
 
 	heap->size = 0;
 
+    heap->Coders = malloc(sizeof(Coder *) * data.nb_coders);
+    if (!heap->Coders)
+    {
+        free(heap);
+        return NULL;
+    }
+
 	return heap;
+}
+
+void push_heap(Heap* heap, Coder* new_coder)
+{
+	int child_i;
+	int parent_i;
+	Coder* parent;
+	Coder* child;
+
+	if (!heap->size)
+	{
+		heap->Coders[0] = new_coder;
+        heap->size++;
+		return;
+	}
+	
+	heap->Coders[heap->size] = new_coder;
+	heap->size++;
+
+	child_i = heap->size;
+	while (1)
+	{
+		parent_i = child_i / 2;
+		parent = heap->Coders[parent_i - 1];
+		child = heap->Coders[child_i - 1];
+		if (parent->index > child->index)
+		{
+			heap->Coders[parent_i - 1] = child;
+			heap->Coders[child_i - 1] = parent;
+			child_i = parent_i;
+			if (child_i <= 1)
+				break;
+		}
+		else
+			break;
+	}
 }

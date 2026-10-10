@@ -2,7 +2,15 @@
 #include <unistd.h>
 #include "my_header.h"
 
-int _atoi(const char* str, int nb)
+
+int atoi_error(int index)
+{
+	printf("Error:\n    Argument number %d is incorrect !!\n", index);
+	printf("        the argument should be a positive integer\n");
+	return 0;
+}
+
+int _atoi(const char* str, int index)
 {
 	int i;
 	long res;
@@ -11,19 +19,15 @@ int _atoi(const char* str, int nb)
 	res = 0;
 	while (str[i])
 	{
-		if (!(str[i] >= 48 && str[i] <= 57) || (res > 2147483647))
-		{
-			res = 0;
-			break;
-		}
+		if (!(str[i] >= 48 && str[i] <= 57))
+			return atoi_error(index);
 		res = res * 10 + (str[i] - 48);
+		if (res > 2147483647)
+			return atoi_error(index);
 		i++;
 	}
-	if (res == 0)
-	{
-		printf("Error:\n    Argument number %d is incorrect !!\n", nb);
-		printf("        the argument should be a positive integer\n");
-	}
+	if (!res)
+		return atoi_error(index);
 	return ((int)res);
 }
 

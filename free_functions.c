@@ -1,32 +1,42 @@
 #include "my_header.h"
 
-
-void free_and_exit(Coder** Coders, Data data, int* list)
+void free_and_exit(Coder** Coders, Heap** heap)
 {
 	if (Coders)
-		free_coders(Coders, data);
+	{
+		free_coders(Coders);
+	}
 
-	free(list);
-
+	if (*heap)
+	{
+		free((*heap)->Coders);
+		free(*heap);
+		*heap = NULL;
+	}
 	exit(0);
 }
 
 
-
-void free_coders(Coder **Coders, Data data)
+void free_coders(Coder **Coders)
 {
 	int i;
+	Data *data;
 	Coder *coder;
 
+	data = Coders[0]->data;
+
 	i = 0;
-	while(i < data.nb_coders){
-		coder = Coders[i];
-		if(coder->right_dongle)
-			free(coder->right_dongle);
-		if (coder)
+	while(i < (*data).nb_coders){
+		if (Coders[i])
+		{
+			coder = Coders[i];
+			if(coder->left_dongle)
+				free(coder->left_dongle);
+			
 			free(coder);
+		}
+		else
+			break;
 		i++;
 	}
-
-	free(Coders);
 }

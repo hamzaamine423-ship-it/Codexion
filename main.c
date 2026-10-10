@@ -1,131 +1,102 @@
 #include "my_header.h"
 
 
-void unlock_dongles(Dongle* left_d, Dongle* right_d)
+void check_heap_visiters(Heap *heap)
 {
-	pthread_mutex_unlock(&left_d->mutex);
-	left_d->available = 1;
+	int i;
 
-	pthread_mutex_unlock(&right_d->mutex);
-	right_d->available = 1;
+	i = 0;
+	// printf("in checker of heap \n");
+	while(i < heap->size){
+		// printf("heap[%d]= %d\n", i + 1, heap->Coders[i]->index);
+		i++;
+	}
 }
 
-int check_dongles_availability(Coder *coder)
+
+void taking_dongles(Coder *coder)
 {
-	Dongle* left_d;
-	Dongle* right_d;
+	Dongle *left_dongle;
+	Dongle *right_dongle;
 
-	left_d = coder->left_dongle;
-	right_d = coder->right_dongle;
+	left_dongle = coder->left_dongle;
+	right_dongle = coder->right_dongle;
 
-	if (right_d->available && left_d->available)
-	{
-		printf("the right and left dongles are free to use !!\n");
-		fflush(stdout);
-		return 1;
-	}
+	pthread_mutex_lock(&left_dongle->mutex);
+	pthread_mutex_lock(&right_dongle->mutex);
 
-	else
-		return 0;
 }
 
-void push_heap(Heap* heap, Coder* new_coder)
+int i_am_the_top_heap(Heap *heap, Coder *coder)
 {
-	int child_i;
-	int parent_i;
-	Coder* parent;
-	Coder* child;
-	int debug;
-
-
-	if (!heap->size)
-	{
-		heap->Coders[0] = new_coder;
-		heap->size++;
-		return;
-	}
-	if (heap->size == 3)
-		debug = 1;
-	else
-		debug = 0;
-	
-	heap->Coders[heap->size] = new_coder;
-	heap->size++;
-
-	
-
-	// printf("index of the new coder: %d\n", new_coder->index);
-	// printf("size: %d\n", heap->size);
-
-	child_i = heap->size;
-	while (1)
-	{
-		if (child_i == 0)
-			return;
-		parent_i = child_i / 2;
-		// printf("parent_i=%d, child_i=%d\n", parent_i, child_i);
-		parent = heap->Coders[parent_i - 1];
-
-
-		child = heap->Coders[child_i - 1];
-		
-		if (parent->index > child->index)
+	while (1){
+		if (heap->Coders[0])
 		{
-			// printf("index of parent before: %d\n", heap->Coders[parent_i - 1]->index);
-			heap->Coders[parent_i - 1] = child;
-			heap->Coders[child_i - 1] = parent;
-			child_i = parent_i / 2;
-			// printf("index of parent after: %d\n", heap->Coders[parent_i - 1]->index);
+			if(heap->Coders[0] == coder)
+				break;
 		}
-		else
-			break;
 	}
-
+	return 1;
 }
 
-Coder* pop_heap(Heap* heap)
-{
-	Coder* top_coder;
 
-	if (heap->size == 0)
-		return NULL;
-	top_coder = heap->Coders[0];
-
-	remove_top_heap(heap);
-
-	return top_coder;
-}
-
-void* compiling(void* arg) 
+void* go(void* arg)
 {
 	Coder *coder;
-	int ret;
-
+	Data *data;
+	Heap *heap;
+	int i;
 	coder = (Coder *)arg;
-	printf("Xms %d is compiling!\n", coder->index);
-	usleep(coder->data.time_to_compile);
 
-	unlock_dongles(coder->left_dongle, coder->right_dongle);
-	coder->compile_count++;
-	debugging(*coder);
+	data = coder->data;
+	heap = coder->data->heap;
+
+	i = 0;
+
+	while (coder->compile_count < data->nb_compiles)
+	{
+		push_heap(heap, coder);
+		// check_heap_visiters(heap);
+
+		if (i_am_the_top_heap(heap, coder))
+			pop_heap(heap);
+
+		taking_dongles(coder);
+
+		compiling(coder);
+	}
+
 
 	return NULL;
 }
 
-void taking_dongles(Heap* heap)
-{
-	Coder *coder1;
 
-	coder1 = heap->Coders[0];
-	if(check_dongles_availability(coder1))
+void start(Coder** Coders, Heap* heap, Data data)
+{
+	int i;
+	Coder* coder;
+	i = 0;
+
+	while (i < data.nb_coders)
 	{
-		printf("Xms %d has taken a dongle\n", coder1->index);
-		printf("Xms %d has taken a dongle\n", coder1->index);
-		if (pthread_create(&coder1->thread, NULL, &compiling, coder1))
-			perror("Failed to create a thread !!\n");
+		coder = Coders[i];
+		pthread_create(&coder->thread, NULL, &go, coder);
+		i++;
+	}
+	i = 0;
+	while (i < data.nb_coders)
+	{
+		coder = Coders[i];
+		pthread_join(coder->thread, NULL);
+		i++;
 	}
 }
 
+
+void leak_test()
+{
+    system("leaks codexion");
+}
 
 int main(int ac, char* av[])
 {
@@ -134,39 +105,36 @@ int main(int ac, char* av[])
 	Coder **Coders;
 	Heap *heap;
 	Coder *tmp;
+	struct timespec ts;
+	int *po;
 
-	printf("\n");
+	po = malloc(sizeof(int) * 9999);
+
+	atexit(leak_test);
+
 	list = parse(ac, av);
 	if (!list)
 		exit(0);
 
-	data = create_data(list, av[8]);
-	Coders = creating_coders(data, list);
+	data = create_data(&list, av[8]);
 
+	Coders = creating_coders(&data);
+	if (!Coders)
+		exit(0);
 
 	heap = create_heap_FIFO(data);
 	if (!heap)
-		free_and_exit(Coders, data, list);
+		free_and_exit(Coders, NULL);
+
+	data.heap = heap;
+
+	start(Coders, heap, data);
 
 
+	free_and_exit(Coders, &heap);
 
-
-	for (int i = 9; i > 6; i--){
-		push_heap(heap, Coders[i]);
-		printf("size of the heap: %d\n", heap->size);
-	}
-
-	printf("size of heap: %d\n\n", heap->size);
-
-	for(int i=0; i < heap->size; i++){
-		printf("heap[%d]: %d\n",i + 1, heap->Coders[i]->index);
-	}
-
-	// for(int i = 0; i < data.nb_coders; i++){
-	// 	tmp = heap->Coders[i];
-	// 	pthread_join(tmp->thread, NULL);
-	// }
-
-	free_and_exit(Coders, data, list);
 	return 0;
 }
+
+
+

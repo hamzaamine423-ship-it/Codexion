@@ -8,10 +8,11 @@ OBJS= $(SRCS:.c=.o)
 
 
 all: $(LIB_NAME) run
-	 
+	
 run:
+	clear
 	@gcc main.c -L. -l_codexion -o codexion  
-	./codexion 10 600 200 200 200 1 200 edf
+	./codexion 10 600 200 200 200 5 200 Edf
 
 test:
 	gcc test.c && ./a.out
