@@ -1,47 +1,79 @@
 #include "my_header.h"
 
-void put_str_codexion(const char *str)
+
+int convert_size_t(size_t time, char *new_str)
 {
+	char tmp[20];
 	int i;
+	int j;
 
 	i = 0;
-	while(str[i])
+	if (time == 0)
+    	tmp[i++] = '0';
+	while (time > 0)
 	{
-		write(stdout, str[i], 1);
-		i++;
+		tmp[i++] = (time % 10) + '0';
+		time /= 10;
 	}
+
+	j = 0;
+	while(i > 0)
+		new_str[j++] = tmp[--i];
+	
+	new_str[j] = ' ';
+
+	return ++j;
 }
 
-void unlock_dongles(Dongle* left_d, Dongle* right_d)
+int convert_int(int index, int nb,char *new_str)
 {
-	pthread_mutex_unlock(&left_d->mutex);
-	left_d->available = 1;
+	char tmp[12];
+	int i;
+	int j;
 
-	pthread_mutex_unlock(&right_d->mutex);
-	right_d->available = 1;
+	i = 0;
+	while (nb > 0)
+	{
+		tmp[i++] = (nb % 10) + '0';
+		nb /= 10;
+	}
+
+	j = index;
+	while(i > 0)
+		new_str[j++] = tmp[--i];
+	
+	new_str[j] = ' ';
+
+	return ++j;
 }
 
-void compiling(Coder* coder)
+void put_str_codexion(int nb, size_t time, char *str)
 {
-	printf("Xms %d is compiling!\n", coder->index);
-	usleep(coder->data->time_to_compile);
+	char new_str[50];
+	int index;
+	int i;
+	int len;
 
-	unlock_dongles(coder->left_dongle, coder->right_dongle);
-	coder->compile_count++;
+	index = convert_size_t(time, new_str);
+	index = convert_int(index, nb, new_str);
 
-	debugging(*coder);
+	i = 0;
+	while (str[i])
+		new_str[index++] = str[i++];
+
+	new_str[index] = '\0';
+
+	len = ft_str_len(new_str);
+
+	write(1, &new_str[0], len);
 }
 
-void debugging(Coder coder)
-{
-    printf("Xms %d is debugging\n", coder.index);
-    usleep(coder.data->time_to_debug);
 
-    refactoring(coder);
-}
-
-void refactoring(Coder coder)
+void ft_putstr(const char *str)
 {
-    printf("Xms %d is refactoring\n", coder.index);
-    usleep(coder.data->time_to_refactor);
+	int len;
+
+	len = ft_str_len(str);
+
+	write(1, &str[0], len);
 }

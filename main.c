@@ -1,6 +1,5 @@
 #include "my_header.h"
 
-
 void check_heap_visiters(Heap *heap)
 {
 	int i;
@@ -13,26 +12,16 @@ void check_heap_visiters(Heap *heap)
 	}
 }
 
-
-void taking_dongles(Coder *coder)
-{
-	Dongle *left_dongle;
-	Dongle *right_dongle;
-
-	left_dongle = coder->left_dongle;
-	right_dongle = coder->right_dongle;
-
-	pthread_mutex_lock(&left_dongle->mutex);
-	pthread_mutex_lock(&right_dongle->mutex);
-
-}
-
-int i_am_the_top_heap(Heap *heap, Coder *coder)
+int until_i_am_top(Heap *heap, Coder *coder)
 {
 	while (1){
 		if (heap->Coders[0])
 		{
 			if(heap->Coders[0] == coder)
+			{
+				pop_heap(heap);
+				break;
+			}
 				break;
 		}
 	}
@@ -56,10 +45,8 @@ void* go(void* arg)
 	while (coder->compile_count < data->nb_compiles)
 	{
 		push_heap(heap, coder);
-		// check_heap_visiters(heap);
 
-		if (i_am_the_top_heap(heap, coder))
-			pop_heap(heap);
+		until_i_am_top(heap, coder);
 
 		taking_dongles(coder);
 
@@ -93,11 +80,6 @@ void start(Coder** Coders, Heap* heap, Data data)
 }
 
 
-void leak_test()
-{
-    system("leaks codexion");
-}
-
 int main(int ac, char* av[])
 {
 	int *list;
@@ -105,12 +87,6 @@ int main(int ac, char* av[])
 	Coder **Coders;
 	Heap *heap;
 	Coder *tmp;
-	struct timespec ts;
-	int *po;
-
-	po = malloc(sizeof(int) * 9999);
-
-	atexit(leak_test);
 
 	list = parse(ac, av);
 	if (!list)
@@ -128,8 +104,8 @@ int main(int ac, char* av[])
 
 	data.heap = heap;
 
+	data.start_time = gettime();
 	start(Coders, heap, data);
-
 
 	free_and_exit(Coders, &heap);
 

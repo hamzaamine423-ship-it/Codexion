@@ -21,7 +21,7 @@ Coder	**creating_coders(Data *data)
 	while (i <= (*data).nb_coders) 
 	{
 		coder = malloc(sizeof(Coder));
-		dongle_l = create_dongle(i);
+		dongle_l = create_dongle(i, data->dongle_cooldown);
 		if (!coder || !dongle_l)
 			free_and_exit(Coders_list, NULL);
 		coder->left_dongle = dongle_l;
@@ -36,7 +36,7 @@ Coder	**creating_coders(Data *data)
 	return Coders_list;
 }
 
-Dongle* create_dongle(int index)
+Dongle* create_dongle(int index, int dongle_cooldown)
 {
 	Dongle *dongle;
 
@@ -45,8 +45,11 @@ Dongle* create_dongle(int index)
 		return NULL;
 	
 	pthread_mutex_init(&dongle->mutex, NULL);
+	pthread_mutex_init(&dongle->cond, NULL);
 	dongle->index = index;
 	dongle->available = 1;
+	dongle->released = 0;
+	dongle->coolddown = dongle_cooldown;
 
 	return dongle;
 }

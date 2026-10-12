@@ -5,8 +5,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <sys/time.h>
+#include <time.h>
 
 
 typedef struct Dongle Dongle;
@@ -18,6 +17,9 @@ typedef struct Dongle{
 	int				index;
 	int				available;
 	pthread_mutex_t	mutex;
+	pthread_cond_t cond;
+	size_t released;
+	int coolddown;
 }Dongle;
 
 typedef struct Heap{
@@ -35,6 +37,7 @@ typedef struct Data{
 	int		dongle_cooldown;
 	char*	scheduler;
 	Heap	*heap;
+	size_t start_time;
 } Data;
 
 typedef struct Coder{
@@ -43,15 +46,29 @@ typedef struct Coder{
 	int			index;
 	pthread_t	thread;
 	Data		*data;
-	int			time_from_last_compile;
+	size_t		time_from_last_compile;
 	int			compile_count;
 } Coder;
 
+// time functions:
+size_t gettime(void);
+
+// helper function:
+void put_str_codexion(int nb, size_t time, char *str);
+void ft_putstr(const char *str);
+int		ft_isalpha(int c);
+int		ft_str_len(const char* str);
+char*	str_tolower(char* str);
+int		ft_cmp(const char* s1, const char* s2);
+
+// dongle functions:
+void taking_dongles(Coder *coder);
+void unlock_dongles(Dongle* left_d, Dongle* right_d);
 
 // Creating functions:
 Coder	**creating_coders(Data *data);
 Data	create_data(int** list, char* scheduler);
-Dongle*	create_dongle(int index);
+Dongle*	create_dongle(int index, int dongle_cooldown);
 
 // heap_functions:
 Coder*	pop_heap(Heap* heap);
@@ -67,10 +84,6 @@ void	free_and_exit(Coder** coders, Heap **heap);
 int*	parse(int ac, char* av[]);
 void	parse_scheduler(char* str);
 int		_atoi(const char* str, int nb);
-int		ft_isalpha(int c);
-int		ft_str_len(const char* str);
-char*	str_tolower(char* str);
-int		ft_cmp(const char* s1, const char* s2);
 
 
 void	debugging(Coder coder);

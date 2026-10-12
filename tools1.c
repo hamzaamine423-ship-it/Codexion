@@ -2,21 +2,14 @@
 
 void ft_putnbr(int nb)
 {
-	int res;
 	char c;
 
-	while (nb >= 10)
+	if (nb >= 10)
 		ft_putnbr(nb / 10);
+
 	c = (nb % 10) + 48;
 	write(1, &c, 1);
-
-
-
 }
-
-// int main (){
-// 	ft_putnbr(100);
-// }
 
 
 int	ft_isalpha(int c)
