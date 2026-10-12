@@ -2,9 +2,11 @@
 
 void	creating_coders2(Data *data1, Coder *coder, int index)
 {
+	pthread_mutex_init(&coder->c_mutex, NULL);
 	coder->data = data1;
 	coder->index = index;
 	coder->compile_count = 0;
+	coder->last_compile = 0;
 }
 
 Coder	**creating_coders(Data *data)
@@ -45,7 +47,6 @@ Dongle* create_dongle(int index, int dongle_cooldown)
 		return NULL;
 	
 	pthread_mutex_init(&dongle->mutex, NULL);
-	pthread_mutex_init(&dongle->cond, NULL);
 	dongle->index = index;
 	dongle->available = 1;
 	dongle->released = 0;
@@ -61,16 +62,16 @@ Data create_data(int** list, char* scheduler)
 
 	cp_list = *list;
 
+	pthread_cond_init(&data.cond, NULL);
 	data.nb_coders = cp_list[0];
-	data.time_to_burnout = cp_list[1] / 1000;
-	data.time_to_compile = cp_list[2] / 1000;
-	data.time_to_debug = cp_list[3] / 1000;
-	data.time_to_refactor = cp_list[4] / 1000;
+	data.time_to_burnout = cp_list[1];
+	data.time_to_compile = cp_list[2];
+	data.time_to_debug = cp_list[3];
+	data.time_to_refactor = cp_list[4];
 	data.nb_compiles = cp_list[5];
 	data.dongle_cooldown = cp_list[6];
 
 	data.scheduler = str_tolower(scheduler);
-
 	free(*list);
 	*list = NULL;
 

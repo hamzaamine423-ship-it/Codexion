@@ -1,18 +1,18 @@
-CFLAGS= -Wall -Wextra 
-
-LIB_NAME=lib_codexion.a
-HEADER= my_header.h
-RM= rm -rf
-SRCS= tools1.c coder_functions.c dongle.c timer.c parse.c creating_functions.c free_functions.c heap_fifo.c tools2.c
-OBJS= $(SRCS:.c=.o)
+CFLAGS = -Wall -Wextra -pthread
+LIB_NAME =lib_codexion.a
+HEADER = my_header.h
+RM = rm -rf
+SRCS = tools1.c heap.c edf.c fifo.c monitor.c coder_functions.c \
+		dongle.c timer.c parse.c creating_functions.c free_functions.c tools2.c
+OBJS = $(SRCS:.c=.o)
 
 
 all: $(LIB_NAME) run
 
 run:
 	clear
-	@gcc main.c -L. -l_codexion -o codexion  
-	./codexion 2 600 200 200 200 1 200 fifo
+	@gcc $(CFLAGS) main.c -L. -l_codexion -o codexion  
+	./codexion 2 200 200 200 200 1 200 edf
 
 test:
 	gcc test.c && ./a.out

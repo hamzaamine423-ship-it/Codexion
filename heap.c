@@ -1,5 +1,23 @@
 #include "my_header.h"
 
+int until_i_am_top(Heap *heap, Coder *coder)
+{
+	while (1){
+		if (heap->size)
+		{
+			if(heap->Coders[0] == coder)
+			{
+				break;
+			}
+			else
+				pthread_cond_wait(&coder->data->cond, &coder->c_mutex);
+		}
+	}
+	pop_heap(heap);
+	if (heap->size)
+		pthread_cond_broadcast(&coder->data->cond);
+	return 1;
+}
 
 
 void fix_top(Heap *heap)
@@ -82,7 +100,7 @@ Coder* pop_heap(Heap* heap)
 	return top_coder;
 }
 
-Heap* create_heap_FIFO(Data data)
+Heap* create_heap(Data data)
 {
 	Heap* heap;
 
@@ -100,40 +118,4 @@ Heap* create_heap_FIFO(Data data)
     }
 
 	return heap;
-}
-
-void push_heap(Heap* heap, Coder* new_coder)
-{
-	int child_i;
-	int parent_i;
-	Coder* parent;
-	Coder* child;
-
-	if (!heap->size)
-	{
-		heap->Coders[0] = new_coder;
-        heap->size++;
-		return;
-	}
-	
-	heap->Coders[heap->size] = new_coder;
-	heap->size++;
-
-	child_i = heap->size;
-	while (1)
-	{
-		parent_i = child_i / 2;
-		parent = heap->Coders[parent_i - 1];
-		child = heap->Coders[child_i - 1];
-		if (parent->index > child->index)
-		{
-			heap->Coders[parent_i - 1] = child;
-			heap->Coders[child_i - 1] = parent;
-			child_i = parent_i;
-			if (child_i <= 1)
-				break;
-		}
-		else
-			break;
-	}
 }

@@ -7,17 +7,22 @@
 #include <stdlib.h>
 #include <time.h>
 
+ 
 
 typedef struct Dongle Dongle;
 typedef struct Heap Heap;
 typedef struct Data Data;
 typedef struct Coder Coder;
 
+typedef struct Monitor{
+	int burnout;
+	pthread_t thread;	
+} Monitor;
+
 typedef struct Dongle{
 	int				index;
 	int				available;
 	pthread_mutex_t	mutex;
-	pthread_cond_t cond;
 	size_t released;
 	int coolddown;
 }Dongle;
@@ -28,6 +33,8 @@ typedef struct Heap{
 }Heap;
 
 typedef struct Data{
+	pthread_cond_t cond;
+	Coder **Coders;
 	int		nb_coders;
 	int		time_to_burnout;
 	int		time_to_compile;
@@ -41,13 +48,14 @@ typedef struct Data{
 } Data;
 
 typedef struct Coder{
-	Dongle		*left_dongle;
-	Dongle		*right_dongle;
-	int			index;
-	pthread_t	thread;
-	Data		*data;
-	size_t		time_from_last_compile;
-	int			compile_count;
+	pthread_mutex_t c_mutex;
+	Dongle			*left_dongle;
+	Dongle			*right_dongle;
+	int				index;
+	pthread_t		thread;
+	Data			*data;
+	size_t			last_compile;
+	int	compile_count;
 } Coder;
 
 // time functions:
@@ -71,14 +79,25 @@ Data	create_data(int** list, char* scheduler);
 Dongle*	create_dongle(int index, int dongle_cooldown);
 
 // heap_functions:
+Heap*	create_heap(Data data);
 Coder*	pop_heap(Heap* heap);
-void	push_heap(Heap* heap, Coder* new_coder);
-Heap*	create_heap_FIFO(Data data);
+int until_i_am_top(Heap *heap, Coder *coder);
 void	remove_top_heap(Heap* heap);
+void	push_heap_fifo(Heap* heap, Coder* new_coder);
+void	push_heap_edf(Heap* heap, Coder* new_coder);
+
+// start_functions:
+void start_edf(Coder** Coders, Data data);
+void start_fifo(Coder** Coders, Data data);
+
 
 // Freing functions:
 void	free_coders(Coder **coders_list);
 void	free_and_exit(Coder** coders, Heap **heap);
+
+// start monitor:
+void start_monitor(Coder **Coders, int time_to_burnout);
+
 
 // Parsing functions:
 int*	parse(int ac, char* av[]);
