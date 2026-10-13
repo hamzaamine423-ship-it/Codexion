@@ -4,28 +4,30 @@
 int check_burnout(Coder** Coders)
 {
 	Data *data;
-	int i;
+	int j;
 	size_t current_time;
-	unsigned long burnout;
-    unsigned long   time_between_compile;
 	
 	data = Coders[0]->data;
-	burnout = data->time_to_burnout;
-	i = 0;
-	current_time = gettime();
-    current_time -= data->start_time;
-	while (i < data->nb_coders)
+	j = 0;
+	while (j < data->nb_coders)
 	{
-        if (Coders[i]->compile_count == data->nb_compiles || !Coders[i]->last_compile)
-            continue;
-    	if (current_time > Coders[i]->last_compile)
+		current_time = gettime();
+    	current_time -= data->start_time;
+		pthread_mutex_lock(&data->global_mutex);
+        if (Coders[j]->compile_count == data->nb_compiles || !Coders[j]->last_compile)
+        {
+			j++;
+			pthread_mutex_unlock(&data->global_mutex);
+			continue;
+		}
+    	if (current_time > Coders[j]->last_compile)
 		{
-	    	put_str_codexion(Coders[i]->index, current_time, "burn out\n");
+	    	put_str_codexion(Coders[j]->index, current_time, "burn out\n");
 			// free_and_exit(Coders, heap);
-			exit(0);
+			return 0;
 	    }
-
-		i++;
+		pthread_mutex_unlock(&data->global_mutex);
+		j++;
 	}
 	return 0;
 }
@@ -47,7 +49,6 @@ int check_compiling(Coder **Coders)
 			return 0;
 		i++;
 	}
-
 	return 1;
 
 }
@@ -63,7 +64,6 @@ void* monitor_check(void *arg)
 	while (!check_compiling(Coders))
 	{
 		check_burnout(Coders);
-
 		usleep(1000);
 	}
 
@@ -71,12 +71,22 @@ void* monitor_check(void *arg)
 }
 
 
-void start_monitor(Coder **Coders, int burnout)
+void finish_monitor(Monitor *monitor)
 {
-	Monitor monitor;
+	pthread_join(monitor->thread, NULL);
+}
 
-    monitor.burnout = burnout;
-	pthread_create(&monitor.thread, NULL, &monitor_check, Coders);
+Monitor* start_monitor(Coder **Coders, int burnout)
+{
+	Monitor *monitor;
 
+	monitor = malloc(sizeof(Monitor));
+	if(!monitor)
+		exit(0);
+
+    monitor->burnout = burnout;
+	pthread_create(&monitor->thread, NULL, &monitor_check, Coders);
+
+	return monitor;
 }
 

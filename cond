@@ -1,0 +1,23 @@
+    current_time -= coder->data->start_time;
+	usleep(coder->data->time_to_compile * 1000);
+    current_time -= coder->data->start_time;
+    current_time -= coder.data->start_time;
+    usleep(coder.data->time_to_debug * 1000);
+    current_time -= coder.data->start_time;
+    usleep(coder.data->time_to_refactor * 1000);
+		dongle_l = create_dongle(i, data->dongle_cooldown);
+        checks_cooldown(lf_dl, rt_dl, coder->data->start_time);
+    current_time -= coder->data->start_time;
+				pthread_cond_wait(&coder->data->cond, &coder->c_mutex);
+		pthread_cond_broadcast(&coder->data->cond);
+	heap = coder->data->heap;
+	while (coder->compile_count < data->nb_compiles)
+	heap = coder->data->heap;
+	while (coder->compile_count < data->nb_compiles)
+	burnout = data->time_to_burnout;
+    current_time -= data->start_time;
+	while (i < data->nb_coders)
+        if (Coders[i]->compile_count == data->nb_compiles || !Coders[i]->last_compile)
+	compile_count = data->nb_compiles;
+	while (i < data->nb_coders)
+	heap = &Coders[0]->data->heap;

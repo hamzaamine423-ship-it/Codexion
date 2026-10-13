@@ -33,7 +33,9 @@ typedef struct Heap{
 }Heap;
 
 typedef struct Data{
+	pthread_mutex_t global_mutex;
 	pthread_cond_t cond;
+	int simulation_stop;
 	Coder **Coders;
 	int		nb_coders;
 	int		time_to_burnout;
@@ -95,9 +97,9 @@ void start_fifo(Coder** Coders, Data data);
 void	free_coders(Coder **coders_list);
 void	free_and_exit(Coder** coders, Heap **heap);
 
-// start monitor:
-void start_monitor(Coder **Coders, int time_to_burnout);
-
+// monitor:
+Monitor* start_monitor(Coder **Coders, int time_to_burnout);
+void finish_monitor(Monitor *monitor);
 
 // Parsing functions:
 int*	parse(int ac, char* av[]);
@@ -105,8 +107,8 @@ void	parse_scheduler(char* str);
 int		_atoi(const char* str, int nb);
 
 
-void	debugging(Coder coder);
-void	refactoring(Coder coder);
+void	debugging(Coder *coder);
+void	refactoring(Coder *coder);
 void	compiling(Coder* coder);
 
 

@@ -7,7 +7,7 @@ int atoi_error(int index)
 {
 	printf("Error:\n    Argument number %d is incorrect !!\n", index);
 	printf("        the argument should be a positive integer\n");
-	return 0;
+	return -1;
 }
 
 int _atoi(const char* str, int index)
@@ -26,8 +26,7 @@ int _atoi(const char* str, int index)
 			return atoi_error(index);
 		i++;
 	}
-	if (!res)
-		return atoi_error(index);
+
 	return ((int)res);
 }
 
@@ -59,7 +58,7 @@ int* parse(int ac, char* av[])
 	i = 1;
 	while(i < ac - 1)
 	{
-		if (!_atoi(av[i], i))
+		if (_atoi(av[i], i) == -1)
 		{
 			free(list);
 			exit(0);

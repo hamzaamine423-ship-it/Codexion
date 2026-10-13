@@ -11,7 +11,8 @@ void* go_edf(void* arg)
 	data = coder->data;
 	heap = coder->data->heap;
 
-
+	// if (data->nb_coders == 1 && data->nb_compiles)
+	// 	while(1);
 	while (coder->compile_count < data->nb_compiles)
 	{
 		push_heap_edf(heap, coder);
@@ -102,8 +103,7 @@ int main(int ac, char* av[])
 	Data data;
 	Coder **Coders;
 	Heap *heap;
-	Coder *tmp;
-	pthread_t *monitor;
+	Monitor *monitor;
 
 	list = parse(ac, av);
 	if (!list)
@@ -123,15 +123,15 @@ int main(int ac, char* av[])
 
 	data.heap = heap;
 
-	start_monitor(Coders, data.time_to_burnout);
+	monitor = start_monitor(Coders, data.time_to_burnout);
 	data.start_time = gettime();
-
 	if (ft_cmp(data.scheduler, "edf"))
 		start_edf(Coders, data);
 	else
 		start_fifo(Coders, data);
 
-	pthread_join(*monitor, NULL);
+	pthread_join(monitor->thread, NULL);
+
 	free_and_exit(Coders, &heap);
 
 	return 0;

@@ -62,7 +62,7 @@ Data create_data(int** list, char* scheduler)
 
 	cp_list = *list;
 
-	pthread_cond_init(&data.cond, NULL);
+	data.simulation_stop = 0;
 	data.nb_coders = cp_list[0];
 	data.time_to_burnout = cp_list[1];
 	data.time_to_compile = cp_list[2];
@@ -74,6 +74,11 @@ Data create_data(int** list, char* scheduler)
 	data.scheduler = str_tolower(scheduler);
 	free(*list);
 	*list = NULL;
+	if (!data.nb_coders)
+		exit(0);
+	pthread_mutex_init(&data.global_mutex, NULL);
+	pthread_cond_init(&data.cond, NULL);
+	
 
 	return data;
 }
