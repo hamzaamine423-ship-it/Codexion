@@ -1,4 +1,5 @@
-#include "my_header.h"
+#include "codexion_header.h"
+
 
 void	creating_coders2(Data *data1, Coder *coder, int index)
 {
@@ -46,7 +47,7 @@ Dongle* create_dongle(int index, int dongle_cooldown)
 	if (!dongle)
 		return NULL;
 	
-	pthread_mutex_init(&dongle->mutex, NULL);
+	pthread_mutex_init(&dongle->d_mutex, NULL);
 	dongle->index = index;
 	dongle->available = 1;
 	dongle->released = 0;

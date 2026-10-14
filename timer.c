@@ -1,6 +1,5 @@
 #define _POSIX_C_SOURCE 200809L
-#include "my_header.h"
-#include <time.h>
+#include "codexion_header.h"
 
 size_t gettime(void)
 {

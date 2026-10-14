@@ -22,12 +22,15 @@ typedef struct Monitor{
 typedef struct Dongle{
 	int				index;
 	int				available;
-	pthread_mutex_t	mutex;
+	pthread_mutex_t	d_mutex;
+	pthread_cond_t d_cond;
 	size_t released;
 	int coolddown;
 }Dongle;
 
 typedef struct Heap{
+	pthread_cond_t h_cond;
+	pthread_mutex_t h_mutex;
 	Coder	**Coders;
 	int		size;
 }Heap;

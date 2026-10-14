@@ -1,4 +1,4 @@
-#include "my_header.h"
+#include "codexion_header.h"
 
 
 int check_burnout(Coder** Coders)
@@ -22,7 +22,10 @@ int check_burnout(Coder** Coders)
 		}
     	if (current_time > Coders[j]->last_compile)
 		{
+			Coders[j]->data->simulation_stop = 1;
 	    	put_str_codexion(Coders[j]->index, current_time, "burn out\n");
+			pthread_cond_broadcast(&data->cond);
+			pthread_mutex_unlock(&data->global_mutex);
 			// free_and_exit(Coders, heap);
 			return 0;
 	    }

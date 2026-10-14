@@ -1,7 +1,9 @@
-#include "my_header.h"
+#include "codexion_header.h"
+
 
 int until_i_am_top(Heap *heap, Coder *coder)
 {
+
 	while (1){
 		if (heap->size)
 		{
@@ -10,12 +12,14 @@ int until_i_am_top(Heap *heap, Coder *coder)
 				break;
 			}
 			else
-				pthread_cond_wait(&coder->data->cond, &coder->c_mutex);
+				pthread_cond_wait(&heap->h_cond, &heap->h_mutex);
 		}
 	}
+	while (!coder->right_dongle->available || !coder->left_dongle->available)
+        checks_cooldown(coder);
 	pop_heap(heap);
 	if (heap->size)
-		pthread_cond_broadcast(&coder->data->cond);
+		pthread_cond_broadcast(&heap->h_cond);
 	return 1;
 }
 
@@ -116,6 +120,9 @@ Heap* create_heap(Data data)
         free(heap);
         return NULL;
     }
+	pthread_cond_init(&heap->h_cond, NULL);
+
+	pthread_mutex_init(&heap->h_mutex, NULL);
 
 	return heap;
 }

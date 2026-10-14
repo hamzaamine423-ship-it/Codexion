@@ -1,4 +1,4 @@
-#include "my_header.h"
+#include "codexion_header.h"
 
 void* go_edf(void* arg)
 {
@@ -63,17 +63,17 @@ void* go_fifo(void* arg)
 
 	while (coder->compile_count < data->nb_compiles)
 	{
+
 		push_heap_fifo(heap, coder);
 
 		until_i_am_top(heap, coder);
-
-		taking_dongles(coder);
+		fflush(stdout);
 
 		compiling(coder);
 	}
 
 
-	return NULL;
+	return NULL; 
 }
 
 void start_fifo(Coder** Coders, Data data)
@@ -103,7 +103,7 @@ int main(int ac, char* av[])
 	Data data;
 	Coder **Coders;
 	Heap *heap;
-	Monitor *monitor;
+	// Monitor *monitor;
 
 	list = parse(ac, av);
 	if (!list)
@@ -123,16 +123,16 @@ int main(int ac, char* av[])
 
 	data.heap = heap;
 
-	monitor = start_monitor(Coders, data.time_to_burnout);
+	// monitor = start_monitor(Coders, data.time_to_burnout);
 	data.start_time = gettime();
 	if (ft_cmp(data.scheduler, "edf"))
 		start_edf(Coders, data);
 	else
 		start_fifo(Coders, data);
 
-	pthread_join(monitor->thread, NULL);
+	// pthread_join(monitor->thread, NULL);
 
-	free_and_exit(Coders, &heap);
+	// free_and_exit(Coders, &heap);
 
 	return 0;
 }
