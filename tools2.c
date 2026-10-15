@@ -26,7 +26,7 @@ int convert_size_t(size_t time, char *new_str)
 	return ++j;
 }
 
-int convert_int(int index, int nb,char *new_str)
+int convert_int(int index, int nb, char *new_str)
 {
 	char tmp[12];
 	int i;

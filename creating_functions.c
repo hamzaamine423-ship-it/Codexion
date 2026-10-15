@@ -46,11 +46,10 @@ Dongle* create_dongle(int index, int dongle_cooldown)
 	dongle = malloc(sizeof(Dongle));
 	if (!dongle)
 		return NULL;
-	
-	pthread_mutex_init(&dongle->d_mutex, NULL);
+
 	dongle->index = index;
-	dongle->available = 1;
-	dongle->released = 0;
+	dongle->taken = 0;
+	dongle->released = -1;
 	dongle->coolddown = dongle_cooldown;
 
 	return dongle;

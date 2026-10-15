@@ -1,6 +1,13 @@
 #include "codexion_header.h"
 
 
+void check_heap(Heap* heap)
+{
+    for (int i = 0; i < heap->size; i++)
+        printf("heap[%d]: %d\n", i + 1, heap->Coders[i]->index);
+}
+
+
 int until_i_am_top(Heap *heap, Coder *coder)
 {
 
@@ -8,18 +15,23 @@ int until_i_am_top(Heap *heap, Coder *coder)
 		if (heap->size)
 		{
 			if(heap->Coders[0] == coder)
-			{
 				break;
-			}
-			else
-				pthread_cond_wait(&heap->h_cond, &heap->h_mutex);
 		}
 	}
-	while (!coder->right_dongle->available || !coder->left_dongle->available)
-        checks_cooldown(coder);
+
+	while (1)
+    {
+        if (checks_cooldown(coder))
+            break;
+    }
+
+    if (pthread_mutex_lock(&coder->data->global_mutex) != 0)
+        exit(1);
+
 	pop_heap(heap);
-	if (heap->size)
-		pthread_cond_broadcast(&heap->h_cond);
+    if (pthread_mutex_unlock(&coder->data->global_mutex) != 0)
+        exit(1);
+
 	return 1;
 }
 
@@ -95,7 +107,7 @@ Coder* pop_heap(Heap* heap)
 {
 	Coder* top_coder;
 
-	if (heap->size == 0)
+	if (!heap->size)
 		return NULL;
 	top_coder = heap->Coders[0];
 

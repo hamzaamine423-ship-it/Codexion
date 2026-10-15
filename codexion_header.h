@@ -21,9 +21,7 @@ typedef struct Monitor{
 
 typedef struct Dongle{
 	int				index;
-	int				available;
-	pthread_mutex_t	d_mutex;
-	pthread_cond_t d_cond;
+	int				taken;
 	size_t released;
 	int coolddown;
 }Dongle;
@@ -76,7 +74,8 @@ int		ft_cmp(const char* s1, const char* s2);
 
 // dongle functions:
 void taking_dongles(Coder *coder);
-void unlock_dongles(Dongle* left_d, Dongle* right_d);
+int checks_cooldown(Coder *coder);
+void recovery_dongles(Coder* coder);
 
 // Creating functions:
 Coder	**creating_coders(Data *data);
@@ -84,6 +83,7 @@ Data	create_data(int** list, char* scheduler);
 Dongle*	create_dongle(int index, int dongle_cooldown);
 
 // heap_functions:
+void check_heap(Heap* heap);
 Heap*	create_heap(Data data);
 Coder*	pop_heap(Heap* heap);
 int until_i_am_top(Heap *heap, Coder *coder);

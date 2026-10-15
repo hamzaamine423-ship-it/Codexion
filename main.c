@@ -19,12 +19,10 @@ void* go_edf(void* arg)
 
 		until_i_am_top(heap, coder);
 
-		taking_dongles(coder);
-
 		compiling(coder);
 	}
 
-
+ 
 	return NULL;
 }
 
@@ -63,15 +61,15 @@ void* go_fifo(void* arg)
 
 	while (coder->compile_count < data->nb_compiles)
 	{
-
+    	if (pthread_mutex_lock(&coder->data->global_mutex) != 0)
+    	    exit(1);
 		push_heap_fifo(heap, coder);
-
+    	if (pthread_mutex_unlock(&coder->data->global_mutex) != 0)
+    	    exit(1);
 		until_i_am_top(heap, coder);
-		fflush(stdout);
 
 		compiling(coder);
 	}
-
 
 	return NULL; 
 }
@@ -85,16 +83,22 @@ void start_fifo(Coder** Coders, Data data)
 	while (i < data.nb_coders)
 	{
 		coder = Coders[i];
-		pthread_create(&coder->thread, NULL, &go_fifo, coder);
+		if (pthread_create(&coder->thread, NULL, &go_fifo, coder) != 0)
+			exit(1);
 		i++;
 	}
 	i = 0;
 	while (i < data.nb_coders)
 	{
+		printf("stuck here: %d\n", i + 1);
+		check_heap(coder->data->heap);
 		coder = Coders[i];
-		pthread_join(coder->thread, NULL);
+		if (pthread_join(coder->thread, NULL) != 0)
+			exit(1);
 		i++;
-	}
+	} 
+	printf("\nfinished sucess!\n");
+
 }
 
 int main(int ac, char* av[])
@@ -125,10 +129,12 @@ int main(int ac, char* av[])
 
 	// monitor = start_monitor(Coders, data.time_to_burnout);
 	data.start_time = gettime();
-	if (ft_cmp(data.scheduler, "edf"))
-		start_edf(Coders, data);
-	else
-		start_fifo(Coders, data);
+
+
+	// if (ft_cmp(data.scheduler, "edf"))
+	// 	start_edf(Coders, data);
+	// else
+	start_fifo(Coders, data);
 
 	// pthread_join(monitor->thread, NULL);
 
