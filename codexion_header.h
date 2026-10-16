@@ -22,7 +22,7 @@ typedef struct Monitor{
 typedef struct Dongle{
 	int				index;
 	int				taken;
-	size_t released;
+	long released;
 	int coolddown;
 }Dongle;
 
@@ -47,7 +47,7 @@ typedef struct Data{
 	int		dongle_cooldown;
 	char*	scheduler;
 	Heap	*heap;
-	size_t start_time;
+	long start_time;
 } Data;
 
 typedef struct Coder{
@@ -57,15 +57,15 @@ typedef struct Coder{
 	int				index;
 	pthread_t		thread;
 	Data			*data;
-	size_t			last_compile;
+	long			last_compile;
 	int	compile_count;
 } Coder;
 
 // time functions:
-size_t gettime(void);
+long gettime(void);
 
 // helper function:
-void put_str_codexion(int nb, size_t time, char *str);
+void put_str_codexion(int nb, long time, char *str);
 void ft_putstr(const char *str);
 int		ft_isalpha(int c);
 int		ft_str_len(const char* str);

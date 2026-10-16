@@ -4,7 +4,7 @@ void taking_dongles(Coder* coder)
 {
     Dongle* left;
     Dongle* right;
-    size_t current_time;
+    long current_time;
 
     left = coder->left_dongle;
     right = coder->right_dongle;
@@ -21,7 +21,7 @@ int checks_cooldown(Coder *coder)
 {
     Dongle *left;
     Dongle *right;
-    size_t current_time;
+    long current_time;
 
     left = coder->left_dongle;
     right = coder->right_dongle;
@@ -45,18 +45,28 @@ int checks_cooldown(Coder *coder)
 
     current_time = gettime();
     current_time -= coder->data->start_time;
+    // printf("current time: %d\n", current_time);
+    // printf("right released: %d\n", right->released);
+    // printf("right cooldown: %d\n", right->coolddown);
+    // printf("left released: %d\n", left->released);
+    // printf("left cooldown: %d\n", left->coolddown);
+    // printf("the sum left: %d\n", left->released + left->coolddown);
     if (current_time > right->released + right->coolddown)
     {
-        if (current_time > left->released + left->coolddown)
+
+        if (current_time > (left->released + left->coolddown))
         {
+
             taking_dongles(coder);
             if (pthread_mutex_unlock(&coder->data->global_mutex) != 0)
                 exit(1);
             return 1;
         }
     }
+
     if (pthread_mutex_unlock(&coder->data->global_mutex) != 0)
         exit(1);
+    
     return 0;
 }
 

@@ -12,25 +12,28 @@ int until_i_am_top(Heap *heap, Coder *coder)
 {
 
 	while (1){
+        pthread_mutex_lock(&coder->data->global_mutex);
 		if (heap->size)
 		{
-			if(heap->Coders[0] == coder)
-				break;
-		}
-	}
 
+            if(heap->Coders[0]->index == coder->index)
+            {
+                pop_heap(heap);
+                pthread_mutex_unlock(&coder->data->global_mutex);
+				break;
+            }
+
+		}
+        
+        pthread_mutex_unlock(&coder->data->global_mutex);
+        usleep(1000);
+    }
+    
 	while (1)
     {
         if (checks_cooldown(coder))
-            break;
+        break;
     }
-
-    if (pthread_mutex_lock(&coder->data->global_mutex) != 0)
-        exit(1);
-
-	pop_heap(heap);
-    if (pthread_mutex_unlock(&coder->data->global_mutex) != 0)
-        exit(1);
 
 	return 1;
 }
@@ -85,9 +88,6 @@ void remove_top_heap(Heap* heap)
     int len;
 
     len = heap->size;
-
-    if (heap->size == 0)
-        return;
 
     if (heap->size == 1)
     {

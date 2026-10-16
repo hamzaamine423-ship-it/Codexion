@@ -48,7 +48,7 @@ int convert_int(int index, int nb, char *new_str)
 	return ++j;
 }
 
-void put_str_codexion(int nb, size_t time, char *str)
+void put_str_codexion(int nb, long time, char *str)
 {
 	char new_str[50];
 	int index;

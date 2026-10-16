@@ -5,7 +5,7 @@ int check_burnout(Coder** Coders)
 {
 	Data *data;
 	int j;
-	size_t current_time;
+	long current_time;
 	
 	data = Coders[0]->data;
 	j = 0;
@@ -59,11 +59,9 @@ int check_compiling(Coder **Coders)
 
 void* monitor_check(void *arg)
 {
-	Heap** heap;
 	Coder **Coders;
 
 	Coders = (Coder **)arg;
-	heap = &Coders[0]->data->heap;
 	while (!check_compiling(Coders))
 	{
 		check_burnout(Coders);

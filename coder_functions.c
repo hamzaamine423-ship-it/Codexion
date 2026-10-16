@@ -3,7 +3,7 @@
 
 void compiling(Coder* coder)
 {
-    size_t current_time;
+    long current_time;
     Data* data;
 
     data = coder->data;
@@ -18,9 +18,9 @@ void compiling(Coder* coder)
     current_time -= data->start_time;
     coder->last_compile = current_time;
 
-    recovery_dongles(coder);
     coder->left_dongle->released = current_time;
     coder->right_dongle->released = current_time;
+    recovery_dongles(coder);
     coder->compile_count++;
     if (pthread_mutex_unlock(&coder->data->global_mutex) != 0)
         exit(1);
@@ -31,7 +31,7 @@ void compiling(Coder* coder)
 
 void debugging(Coder* coder)
 {
-    size_t current_time;
+    long current_time;
     Data *data;
 
     data = coder->data;
@@ -47,7 +47,7 @@ void debugging(Coder* coder)
 
 void refactoring(Coder *coder)
 {
-    size_t current_time;
+    long current_time;
     Data* data;
 
     data = coder->data;
