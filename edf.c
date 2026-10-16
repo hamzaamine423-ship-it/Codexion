@@ -1,6 +1,62 @@
 #include "codexion_header.h"
 
+void* go_edf(void* arg)
+{
+	Coder *coder;
+	Data *data;
+	Heap *heap;
 
+	coder = (Coder *)arg;
+
+	data = coder->data;
+	heap = coder->data->heap;
+
+	if (data->nb_coders == 1)
+	{
+		while (1)
+		{
+			if (!checks_simulation(coder))
+				return NULL;
+		}
+	}
+	while (coder->compile_count < data->nb_compiles)
+	{
+    	pthread_mutex_lock(&coder->data->global_mutex);
+		if (!checks_simulation(coder))
+			break;
+		push_heap_edf(heap, coder);
+    	pthread_mutex_unlock(&coder->data->global_mutex);
+		if (!until_i_am_top(heap, coder))
+			break;
+			
+		if (!compiling(coder))
+			break;
+	}
+
+ 
+	return NULL;
+}
+
+void start_edf(Coder** Coders, Data data)
+{
+	int i;
+	Coder* coder;
+	i = 0;
+
+	while (i < data.nb_coders)
+	{
+		coder = Coders[i];
+		pthread_create(&coder->thread, NULL, &go_edf, coder);
+		i++;
+	}
+	i = 0;
+	while (i < data.nb_coders)
+	{
+		coder = Coders[i];
+		pthread_join(coder->thread, NULL);
+		i++;
+	}
+}
 
 void push_heap_edf2(Heap* heap, int child_i)
 {
@@ -17,7 +73,7 @@ void push_heap_edf2(Heap* heap, int child_i)
 		child = heap->Coders[child_i - 1];
         parent_burnout = parent->last_compile;
         child_burnout = child->last_compile;
-		if (parent_burnout > child_burnout)
+		if (parent_burnout < child_burnout)
 		{
 			heap->Coders[parent_i - 1] = child;
 			heap->Coders[child_i - 1] = parent;

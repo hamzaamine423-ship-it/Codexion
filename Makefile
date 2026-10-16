@@ -7,12 +7,12 @@ SRCS = tools1.c heap.c edf.c fifo.c monitor.c coder_functions.c \
 OBJS = $(SRCS:.c=.o)
 
 
-all: $(LIB_NAME) 
+all: $(LIB_NAME) run
 
 run:
 	clear
 	@gcc $(CFLAGS) main.c -L. -l_codexion -o codexion
-	./codexion 13 10 100 100 100 10 200 edf
+	./codexion 1 0 0 0 0 0 0 fifo
 
 test:
 	gcc test.c && ./a.out

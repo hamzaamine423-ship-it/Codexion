@@ -10,29 +10,32 @@ void check_heap(Heap* heap)
 
 int until_i_am_top(Heap *heap, Coder *coder)
 {
+    int res;
 
 	while (1){
-        pthread_mutex_lock(&coder->data->global_mutex);
-		if (heap->size)
+		pthread_mutex_lock(&coder->data->global_mutex);
+        if (heap->size && heap->Coders[0] == coder)
 		{
-
-            if(heap->Coders[0]->index == coder->index)
-            {
-                pop_heap(heap);
-                pthread_mutex_unlock(&coder->data->global_mutex);
-				break;
-            }
-
+            break;
 		}
-        
+
         pthread_mutex_unlock(&coder->data->global_mutex);
         usleep(1000);
     }
-    
-	while (1)
+    while (1)
     {
-        if (checks_cooldown(coder))
-        break;
+        res = checks_cooldown(coder);
+        if (res == 2)
+            return 0;
+        if (res)
+        {
+            pthread_mutex_lock(&coder->data->global_mutex);
+            if (!checks_simulation(coder))
+                return 0;
+            pop_heap(heap);
+            pthread_mutex_unlock(&coder->data->global_mutex);
+            break;
+        }
     }
 
 	return 1;
@@ -125,6 +128,7 @@ Heap* create_heap(Data data)
 		return NULL;
 
 	heap->size = 0;
+    heap->push_access = 1;
 
     heap->Coders = malloc(sizeof(Coder *) * data.nb_coders);
     if (!heap->Coders)

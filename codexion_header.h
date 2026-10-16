@@ -30,6 +30,7 @@ typedef struct Heap{
 	pthread_cond_t h_cond;
 	pthread_mutex_t h_mutex;
 	Coder	**Coders;
+	int push_access;
 	int		size;
 }Heap;
 
@@ -102,7 +103,8 @@ void	free_and_exit(Coder** coders, Heap **heap);
 
 // monitor:
 Monitor* start_monitor(Coder **Coders, int time_to_burnout);
-void finish_monitor(Monitor *monitor);
+int checks_simulation(Coder *coder);
+
 
 // Parsing functions:
 int*	parse(int ac, char* av[]);
@@ -110,9 +112,9 @@ void	parse_scheduler(char* str);
 int		_atoi(const char* str, int nb);
 
 
-void	debugging(Coder *coder);
-void	refactoring(Coder *coder);
-void	compiling(Coder* coder);
+int	debugging(Coder *coder);
+int	refactoring(Coder *coder);
+int	compiling(Coder* coder);
 
 
 #endif

@@ -1,6 +1,17 @@
 #include "codexion_header.h"
 
 
+int checks_simulation(Coder *coder)
+{
+	if (coder->data->simulation_stop == 1)
+	{
+		pthread_mutex_unlock(&coder->data->global_mutex);
+		return 0;
+	}
+	return 1;
+}
+
+
 int check_burnout(Coder** Coders)
 {
 	Data *data;
@@ -11,28 +22,24 @@ int check_burnout(Coder** Coders)
 	j = 0;
 	while (j < data->nb_coders)
 	{
+
 		current_time = gettime();
     	current_time -= data->start_time;
-		pthread_mutex_lock(&data->global_mutex);
-        if (Coders[j]->compile_count == data->nb_compiles || !Coders[j]->last_compile)
+
+        if (Coders[j]->compile_count == data->nb_compiles)
         {
 			j++;
-			pthread_mutex_unlock(&data->global_mutex);
 			continue;
 		}
-    	if (current_time > Coders[j]->last_compile)
+    	if (current_time > (Coders[j]->last_compile + Coders[j]->data->time_to_burnout))
 		{
 			Coders[j]->data->simulation_stop = 1;
-	    	put_str_codexion(Coders[j]->index, current_time, "burn out\n");
-			pthread_cond_broadcast(&data->cond);
-			pthread_mutex_unlock(&data->global_mutex);
-			// free_and_exit(Coders, heap);
+	    	put_str_codexion(Coders[j]->index, current_time, "burned out\n");
 			return 0;
 	    }
-		pthread_mutex_unlock(&data->global_mutex);
 		j++;
 	}
-	return 0;
+	return 1;
 }
 
 
@@ -64,18 +71,14 @@ void* monitor_check(void *arg)
 	Coders = (Coder **)arg;
 	while (!check_compiling(Coders))
 	{
-		check_burnout(Coders);
+		if (!check_burnout(Coders))
+			break;
 		usleep(1000);
 	}
 
 	return NULL;
 }
 
-
-void finish_monitor(Monitor *monitor)
-{
-	pthread_join(monitor->thread, NULL);
-}
 
 Monitor* start_monitor(Coder **Coders, int burnout)
 {
