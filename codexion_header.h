@@ -20,6 +20,7 @@ typedef struct Monitor{
 } Monitor;
 
 typedef struct Dongle{
+	pthread_mutex_t d_mutex;
 	int				index;
 	int				taken;
 	long released;

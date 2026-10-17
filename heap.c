@@ -11,33 +11,42 @@ void check_heap(Heap* heap)
 int until_i_am_top(Heap *heap, Coder *coder)
 {
     int res;
+    int taken;
+    taken = 0;
 
 	while (1){
 		pthread_mutex_lock(&coder->data->global_mutex);
         if (heap->size && heap->Coders[0] == coder)
 		{
+            pop_heap(heap);
+            pthread_mutex_unlock(&coder->data->global_mutex);
+            pthread_cond_broadcast(&coder->data->cond);
             break;
 		}
+        else
+            pthread_cond_wait(&coder->data->cond, &coder->data->global_mutex);
 
         pthread_mutex_unlock(&coder->data->global_mutex);
-        usleep(1000);
     }
+
+    pthread_mutex_lock(&coder->left_dongle->d_mutex);
+    pthread_mutex_lock(&coder->right_dongle->d_mutex);
+
     while (1)
     {
         res = checks_cooldown(coder);
         if (res == 2)
-            return 0;
-        if (res)
         {
-            pthread_mutex_lock(&coder->data->global_mutex);
-            if (!checks_simulation(coder))
-                return 0;
-            pop_heap(heap);
-            pthread_mutex_unlock(&coder->data->global_mutex);
-            break;
-        }
-    }
+            pthread_mutex_unlock(&coder->left_dongle->d_mutex);
+            pthread_mutex_unlock(&coder->right_dongle->d_mutex);
+            return 0;
 
+        }
+        if (res)
+            break;
+    }
+    pthread_mutex_unlock(&coder->left_dongle->d_mutex);
+    pthread_mutex_unlock(&coder->right_dongle->d_mutex);
 	return 1;
 }
 

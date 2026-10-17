@@ -25,15 +25,15 @@ void* go_edf(void* arg)
 		if (!checks_simulation(coder))
 			break;
 		push_heap_edf(heap, coder);
+
     	pthread_mutex_unlock(&coder->data->global_mutex);
 		if (!until_i_am_top(heap, coder))
 			break;
-			
+
 		if (!compiling(coder))
 			break;
 	}
 
- 
 	return NULL;
 }
 

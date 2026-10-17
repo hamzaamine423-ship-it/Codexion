@@ -3,11 +3,13 @@
 
 int checks_simulation(Coder *coder)
 {
+	pthread_mutex_lock(&coder->data->global_mutex);
 	if (coder->data->simulation_stop == 1)
 	{
 		pthread_mutex_unlock(&coder->data->global_mutex);
 		return 0;
 	}
+	pthread_mutex_unlock(&coder->data->global_mutex);
 	return 1;
 }
 
@@ -15,6 +17,7 @@ int checks_simulation(Coder *coder)
 int check_burnout(Coder** Coders)
 {
 	Data *data;
+	Coder *coder;
 	int j;
 	long current_time;
 	
@@ -22,22 +25,27 @@ int check_burnout(Coder** Coders)
 	j = 0;
 	while (j < data->nb_coders)
 	{
-
+		coder = Coders[j];
+		pthread_mutex_lock(&coder->c_mutex);
 		current_time = gettime();
     	current_time -= data->start_time;
-
-        if (Coders[j]->compile_count == data->nb_compiles)
+        if (coder->compile_count == data->nb_compiles)
         {
 			j++;
+			pthread_mutex_unlock(&coder->c_mutex);
 			continue;
 		}
-    	if (current_time > (Coders[j]->last_compile + Coders[j]->data->time_to_burnout))
+    	if (current_time > (coder->last_compile + coder->data->time_to_burnout))
 		{
-			Coders[j]->data->simulation_stop = 1;
-	    	put_str_codexion(Coders[j]->index, current_time, "burned out\n");
+			pthread_mutex_unlock(&coder->c_mutex);
+			pthread_mutex_lock(&coder->data->global_mutex);
+			coder->data->simulation_stop = 1;
+			pthread_mutex_unlock(&coder->data->global_mutex);
+	    	put_str_codexion(coder->index, current_time, "burned out\n");
 			return 0;
 	    }
 		j++;
+		pthread_mutex_unlock(&coder->c_mutex);
 	}
 	return 1;
 }

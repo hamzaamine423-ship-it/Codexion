@@ -12,7 +12,7 @@ all: $(LIB_NAME) run
 run:
 	clear
 	@gcc $(CFLAGS) main.c -L. -l_codexion -o codexion
-	./codexion 1 0 0 0 0 0 0 fifo
+	./codexion 2 3000 200 200 200 1 400 edf
 
 test:
 	gcc test.c && ./a.out
