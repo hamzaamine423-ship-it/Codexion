@@ -7,6 +7,10 @@ int checks_simulation(Coder *coder)
 	if (coder->data->simulation_stop == 1)
 	{
 		pthread_mutex_unlock(&coder->data->global_mutex);
+		if (ft_cmp(coder->data->scheduler, "edf"))
+			pthread_cond_broadcast(&coder->data->heap->h_cond);
+		else
+			pthread_cond_broadcast(&coder->data->queue->q_cond);
 		return 0;
 	}
 	pthread_mutex_unlock(&coder->data->global_mutex);
@@ -80,7 +84,7 @@ void* monitor_check(void *arg)
 	while (!check_compiling(Coders))
 	{
 		if (!check_burnout(Coders))
-			break;
+			return NULL;
 		usleep(1000);
 	}
 

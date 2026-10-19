@@ -25,15 +25,24 @@ typedef struct Dongle{
 	int				taken;
 	long released;
 	int coolddown;
-}Dongle;
+} Dongle;
+
+typedef struct Queue{
+	pthread_mutex_t q_mutex;
+	pthread_cond_t q_cond;
+	int front;
+	int rear;
+	int size;
+	int capacity;
+	Coder** Coders;
+} Queue;
 
 typedef struct Heap{
 	pthread_cond_t h_cond;
 	pthread_mutex_t h_mutex;
 	Coder	**Coders;
-	int push_access;
 	int		size;
-}Heap;
+} Heap;
 
 typedef struct Data{
 	pthread_mutex_t global_mutex;
@@ -49,6 +58,7 @@ typedef struct Data{
 	int		dongle_cooldown;
 	char*	scheduler;
 	Heap	*heap;
+	Queue	*queue;
 	long start_time;
 } Data;
 
@@ -63,6 +73,9 @@ typedef struct Coder{
 	int	compile_count;
 } Coder;
 
+int check_last_compile(Coder *coder);
+
+
 // time functions:
 long gettime(void);
 
@@ -75,8 +88,8 @@ char*	str_tolower(char* str);
 int		ft_cmp(const char* s1, const char* s2);
 
 // dongle functions:
-void taking_dongles(Coder *coder);
-int checks_cooldown(Coder *coder);
+int taking_dongles(Coder *coder);
+int checks_takes_dongles(Coder *coder);
 void recovery_dongles(Coder* coder);
 
 // Creating functions:
@@ -84,14 +97,19 @@ Coder	**creating_coders(Data *data);
 Data	create_data(int** list, char* scheduler);
 Dongle*	create_dongle(int index, int dongle_cooldown);
 
-// heap_functions:
-void check_heap(Heap* heap);
-Heap*	create_heap(Data data);
+// fifo_functions:
+int until_i_am_top_fifo(Queue *queue, Coder *coder);
+void check_queue(Queue queue);
+Queue* init_queue(Data data);
+Coder* pop_queue(Queue *queue);
+void push_queue(Queue *queue, Coder *new_coder);
+// edf_functions:
+void check_heap(Heap heap);
+Heap*	init_heap(Data data);
 Coder*	pop_heap(Heap* heap);
-int until_i_am_top(Heap *heap, Coder *coder);
+int until_i_am_top_edf(Heap *heap, Coder *coder);
 void	remove_top_heap(Heap* heap);
-void	push_heap_fifo(Heap* heap, Coder* new_coder);
-void	push_heap_edf(Heap* heap, Coder* new_coder);
+void	push_heap(Heap* heap, Coder* new_coder);
 
 // start_functions:
 void start_edf(Coder** Coders, Data data);

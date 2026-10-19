@@ -46,7 +46,6 @@ Dongle* create_dongle(int index, int dongle_cooldown)
 	dongle = malloc(sizeof(Dongle));
 	if (!dongle)
 		return NULL;
-
 	pthread_mutex_init(&dongle->d_mutex, NULL);
 	dongle->index = index;
 	dongle->taken = 0;
@@ -72,7 +71,7 @@ Data create_data(int** list, char* scheduler)
 	data.nb_compiles = cp_list[5];
 	data.dongle_cooldown = cp_list[6];
 
-	data.scheduler = str_tolower(scheduler);
+	data.scheduler = scheduler;
 	free(*list);
 	*list = NULL;
 	if (!data.nb_coders)

@@ -19,15 +19,18 @@ void* go_edf(void* arg)
 				return NULL;
 		}
 	}
+
 	while (coder->compile_count < data->nb_compiles)
 	{
-    	pthread_mutex_lock(&coder->data->global_mutex);
 		if (!checks_simulation(coder))
 			break;
-		push_heap_edf(heap, coder);
+    	pthread_mutex_lock(&heap->h_mutex);
 
-    	pthread_mutex_unlock(&coder->data->global_mutex);
-		if (!until_i_am_top(heap, coder))
+		push_heap(heap, coder);
+
+    	pthread_mutex_unlock(&heap->h_mutex);
+
+		if (!until_i_am_top_edf(heap, coder))
 			break;
 
 		if (!compiling(coder))
@@ -41,6 +44,7 @@ void start_edf(Coder** Coders, Data data)
 {
 	int i;
 	Coder* coder;
+
 	i = 0;
 
 	while (i < data.nb_coders)
@@ -56,14 +60,13 @@ void start_edf(Coder** Coders, Data data)
 		pthread_join(coder->thread, NULL);
 		i++;
 	}
+	
 }
 
-void push_heap_edf2(Heap* heap, int child_i)
+void push_heap2(Heap* heap, int child_i)
 {
 	Coder* parent;
 	Coder* child;
-    int parent_burnout;
-    int child_burnout;
     int parent_i;
 
 	while (1)
@@ -71,9 +74,8 @@ void push_heap_edf2(Heap* heap, int child_i)
 		parent_i = child_i / 2;
 		parent = heap->Coders[parent_i - 1];
 		child = heap->Coders[child_i - 1];
-        parent_burnout = parent->last_compile;
-        child_burnout = child->last_compile;
-		if (parent_burnout < child_burnout)
+
+		if (parent->last_compile > child->last_compile)
 		{
 			heap->Coders[parent_i - 1] = child;
 			heap->Coders[child_i - 1] = parent;
@@ -87,7 +89,7 @@ void push_heap_edf2(Heap* heap, int child_i)
 }
 
 
-void push_heap_edf(Heap* heap, Coder* new_coder)
+void push_heap(Heap* heap, Coder* new_coder)
 {
     int child_i;
 
@@ -103,7 +105,7 @@ void push_heap_edf(Heap* heap, Coder* new_coder)
 
 	child_i = heap->size;
 
-    push_heap_edf2(heap, child_i);
+    push_heap2(heap, child_i);
 }
 
 

@@ -31,7 +31,6 @@ int _atoi(const char* str, int index)
 
 void parse_scheduler(char* str)
 {
-	str = str_tolower(str);
 	if (!ft_cmp(str, "edf") && !ft_cmp(str, "fifo")){
 		printf("Error:\n");
 		printf("    Type of the scheduler is incorrect !!\n");

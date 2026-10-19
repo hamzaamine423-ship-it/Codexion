@@ -10,9 +10,16 @@ int compiling(Coder* coder)
     current_time = gettime();
     current_time -= data->start_time;
 
+    
+    
     if (!checks_simulation(coder))
+    {
+        pthread_mutex_lock(&coder->left_dongle->d_mutex);
+        pthread_mutex_lock(&coder->right_dongle->d_mutex);
+        recovery_dongles(coder);
         return 0;
-
+    }
+    
     pthread_mutex_lock(&coder->c_mutex);
     coder->last_compile = current_time;
     pthread_mutex_unlock(&coder->c_mutex);
@@ -20,12 +27,19 @@ int compiling(Coder* coder)
     put_str_codexion(coder->index, current_time, "is compiling\n");
     usleep(data->time_to_compile * 1000);
 
-    pthread_mutex_lock(&coder->c_mutex);
     if (!checks_simulation(coder))
+    {
+        pthread_mutex_lock(&coder->left_dongle->d_mutex);
+        pthread_mutex_lock(&coder->right_dongle->d_mutex);
+        recovery_dongles(coder);
         return 0;
+    }
+    pthread_mutex_lock(&coder->c_mutex);
     current_time = gettime();
     current_time -= data->start_time;
-
+    
+    pthread_mutex_lock(&coder->left_dongle->d_mutex);
+    pthread_mutex_lock(&coder->right_dongle->d_mutex);
     coder->left_dongle->released = current_time;
     coder->right_dongle->released = current_time;
     recovery_dongles(coder);

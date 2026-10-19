@@ -47,21 +47,3 @@ int ft_cmp(const char* s1, const char* s2)
 
 	return 1;
 }
-
-char*	str_tolower(char* str)
-{
-	int i;
-
-	i = 0;
-	while(str[i])
-	{
-		if (str[i] <= 'Z' && str[i] >= 'A')
-		{
-			str[i] += 32;
-		}
-
-		i++;
-	}
-
-	return (str);
-}

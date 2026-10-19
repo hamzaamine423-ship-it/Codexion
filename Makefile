@@ -3,7 +3,8 @@ LIB_NAME =lib_codexion.a
 HEADER = my_header.h
 RM = rm -rf
 SRCS = tools1.c heap.c edf.c fifo.c monitor.c coder_functions.c \
-		dongle.c timer.c parse.c creating_functions.c free_functions.c tools2.c
+		dongle.c timer.c parse.c creating_functions.c free_functions.c tools2.c \
+		edf2.c fifo2.c queue.c
 OBJS = $(SRCS:.c=.o)
 
 
