@@ -19,7 +19,6 @@ Queue* init_queue(Data data)
     queue = malloc(sizeof(Queue));
     if (!queue)
         return NULL;
-    
     queue->front = 0;
     queue->rear = 0;
     queue->size = 0;
@@ -31,10 +30,14 @@ Queue* init_queue(Data data)
         free(queue);
         return NULL;
     }
-    pthread_mutex_init(&queue->q_mutex, NULL);
+    queue->mutex_initialized = pthread_mutex_init(&queue->q_mutex, NULL);
+    queue->cond_initialized = pthread_cond_init(&queue->q_cond, NULL);
 
-    pthread_cond_init(&queue->q_cond, NULL);
-
+    if (queue->mutex_initialized != 0|| queue->cond_initialized != 0)
+    {
+        free(queue);
+        return NULL;
+    }
     return queue;
 }
 

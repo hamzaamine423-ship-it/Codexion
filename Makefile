@@ -8,7 +8,7 @@ SRCS = tools1.c heap.c edf.c fifo.c monitor.c coder_functions.c \
 OBJS = $(SRCS:.c=.o)
 
 
-all: $(LIB_NAME) run
+all: $(LIB_NAME) 
 
 run:
 	clear

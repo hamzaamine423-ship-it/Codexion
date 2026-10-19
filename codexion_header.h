@@ -21,6 +21,7 @@ typedef struct Monitor{
 
 typedef struct Dongle{
 	pthread_mutex_t d_mutex;
+	int mutex_initialized;
 	int				index;
 	int				taken;
 	long released;
@@ -29,7 +30,9 @@ typedef struct Dongle{
 
 typedef struct Queue{
 	pthread_mutex_t q_mutex;
+	int mutex_initialized;
 	pthread_cond_t q_cond;
+	int cond_initialized;
 	int front;
 	int rear;
 	int size;
@@ -39,14 +42,18 @@ typedef struct Queue{
 
 typedef struct Heap{
 	pthread_cond_t h_cond;
+	int cond_initialized;
 	pthread_mutex_t h_mutex;
+	int mutex_initialized;
 	Coder	**Coders;
 	int		size;
 } Heap;
 
 typedef struct Data{
 	pthread_mutex_t global_mutex;
+	int mutex_initialized;
 	pthread_cond_t cond;
+	int cond_initialized;
 	int simulation_stop;
 	Coder **Coders;
 	int		nb_coders;
@@ -60,10 +67,12 @@ typedef struct Data{
 	Heap	*heap;
 	Queue	*queue;
 	long start_time;
+	Monitor *monitor;
 } Data;
 
 typedef struct Coder{
 	pthread_mutex_t c_mutex;
+	int mutex_initialized;
 	Dongle			*left_dongle;
 	Dongle			*right_dongle;
 	int				index;
@@ -72,8 +81,6 @@ typedef struct Coder{
 	long			last_compile;
 	int	compile_count;
 } Coder;
-
-int check_last_compile(Coder *coder);
 
 
 // time functions:
@@ -98,16 +105,18 @@ Data	create_data(int** list, char* scheduler);
 Dongle*	create_dongle(int index, int dongle_cooldown);
 
 // fifo_functions:
-int until_i_am_top_fifo(Queue *queue, Coder *coder);
+int take_dongles_fifo(Queue *queue, Coder *coder);
 void check_queue(Queue queue);
 Queue* init_queue(Data data);
 Coder* pop_queue(Queue *queue);
 void push_queue(Queue *queue, Coder *new_coder);
+
 // edf_functions:
 void check_heap(Heap heap);
 Heap*	init_heap(Data data);
 Coder*	pop_heap(Heap* heap);
-int until_i_am_top_edf(Heap *heap, Coder *coder);
+int take_dongles_edf(Heap *heap, Coder *coder);
+
 void	remove_top_heap(Heap* heap);
 void	push_heap(Heap* heap, Coder* new_coder);
 
@@ -118,10 +127,10 @@ void start_fifo(Coder** Coders, Data data);
 
 // Freing functions:
 void	free_coders(Coder **coders_list);
-void	free_and_exit(Coder** coders, Heap **heap);
+void	free_and_exit(Data *Data);
 
 // monitor:
-Monitor* start_monitor(Coder **Coders, int time_to_burnout);
+Monitor* start_monitor(Coder **Coders, int time_to_burnout, Data *data);
 int checks_simulation(Coder *coder);
 
 

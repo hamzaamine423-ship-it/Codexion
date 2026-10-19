@@ -7,19 +7,8 @@ void* go_fifo(void* arg)
 	Queue *queue;
 
 	coder = (Coder *)arg;
-
 	data = coder->data;
 	queue = coder->data->queue;
-
-	if (data->nb_coders == 1)
-	{
-		while (1)
-		{
-			if (!checks_simulation(coder))
-				return NULL;
-		}
-	}
-
 	while (coder->compile_count < data->nb_compiles)
 	{
 		if (!checks_simulation(coder))
@@ -30,9 +19,9 @@ void* go_fifo(void* arg)
 
     	pthread_mutex_unlock(&queue->q_mutex);
 
-		if (!until_i_am_top_fifo(queue, coder))
+		if (!take_dongles_fifo(queue, coder))
 			break;
-		
+	
 		if (!compiling(coder))
 			break;
 	}
@@ -44,8 +33,16 @@ void start_fifo(Coder** Coders, Data data)
 {
 	int i;
 	Coder* coder;
-	i = 0;
 
+	i = 0;
+	if (Coders[0]->data->nb_coders == 1)
+	{
+		while (1)
+		{
+			if (!checks_simulation(Coders[0]))
+				return;
+		}
+	}
 	while (i < data.nb_coders)
 	{
 		coder = Coders[i];
@@ -59,5 +56,4 @@ void start_fifo(Coder** Coders, Data data)
 		pthread_join(coder->thread, NULL);
 		i++;
 	} 
-	
 }

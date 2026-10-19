@@ -1,49 +1,60 @@
 #include "codexion_header.h"
 
+void start_function(Data *data)
+{
+	Heap *heap;
+	Queue *queue;
+
+	if (ft_cmp(data->scheduler, "edf"))
+	{
+		heap = init_heap(*data);
+		if (!heap)
+			free_and_exit(data);
+		data->heap = heap;
+
+		start_edf(data->Coders, *data);
+	}
+	else
+	{
+		queue = init_queue(*data);
+		if (!queue)
+			free_and_exit(data);
+
+		data->queue = queue;
+		start_fifo(data->Coders, *data);
+	}
+}
+
+void hamine(void)
+{
+	system("leaks codexion");
+}
+
 
 int main(int ac, char* av[])
 {
 	int *list;
 	Data data;
 	Coder **Coders;
-	Heap *heap;
-	Queue *queue;
 	Monitor *monitor;
 
+	// atexit(hamine);
 	list = parse(ac, av);
 	if (!list)
 		exit(0);
-
 	data = create_data(&list, av[8]);
-
 	Coders = creating_coders(&data);
 	if (!Coders)
 		exit(0);
 
 	data.Coders = Coders;
-
-	heap = init_heap(data);
-	if (!heap)
-		free_and_exit(Coders, NULL);
-
-	queue = init_queue(data);
-	if (!queue)
-		free_and_exit(Coders, NULL);
-
-	data.heap = heap;
-	data.queue = queue;
-
 	data.start_time = gettime();
-	monitor = start_monitor(Coders, data.time_to_burnout);
+	monitor = start_monitor(Coders, data.time_to_burnout, &data);
+	data.monitor = monitor;
+	start_function(&data);
 
-	if (ft_cmp(data.scheduler, "edf"))
-		start_edf(Coders, data);
-	else
-		start_fifo(Coders, data);
-	
 	pthread_join(monitor->thread, NULL);
-
-	free_and_exit(Coders, &heap);
+	free_and_exit(&data);
 
 	return 0;
 }

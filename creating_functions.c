@@ -1,13 +1,18 @@
 #include "codexion_header.h"
 
 
-void	creating_coders2(Data *data1, Coder *coder, int index)
+void	creating_coders2(Data *data, Coder *coder, int index)
 {
-	pthread_mutex_init(&coder->c_mutex, NULL);
-	coder->data = data1;
+	coder->mutex_initialized = pthread_mutex_init(&coder->c_mutex, NULL);
+	if (coder->mutex_initialized != 0)
+	{
+		free_and_exit(data);
+	}
+
+	coder->data = data;
 	coder->index = index;
 	coder->compile_count = 0;
-	coder->last_compile = 0;
+	coder->last_compile = -1;
 }
 
 Coder	**creating_coders(Data *data)
@@ -26,7 +31,7 @@ Coder	**creating_coders(Data *data)
 		coder = malloc(sizeof(Coder));
 		dongle_l = create_dongle(i, data->dongle_cooldown);
 		if (!coder || !dongle_l)
-			free_and_exit(Coders_list, NULL);
+			free_and_exit(data);
 		coder->left_dongle = dongle_l;
 		creating_coders2(data, coder, i);	
 		if (i > 1)
@@ -46,7 +51,13 @@ Dongle* create_dongle(int index, int dongle_cooldown)
 	dongle = malloc(sizeof(Dongle));
 	if (!dongle)
 		return NULL;
-	pthread_mutex_init(&dongle->d_mutex, NULL);
+	dongle->mutex_initialized = pthread_mutex_init(&dongle->d_mutex, NULL);
+
+	if (dongle->mutex_initialized != 0)
+	{
+		free(dongle);
+		return NULL;
+	}
 	dongle->index = index;
 	dongle->taken = 0;
 	dongle->released = -1;
@@ -61,7 +72,9 @@ Data create_data(int** list, char* scheduler)
 	int *cp_list;
 
 	cp_list = *list;
-
+	data.heap = NULL;
+	data.queue = NULL;
+	data.monitor = NULL;
 	data.simulation_stop = 0;
 	data.nb_coders = cp_list[0];
 	data.time_to_burnout = cp_list[1];
@@ -70,15 +83,14 @@ Data create_data(int** list, char* scheduler)
 	data.time_to_refactor = cp_list[4];
 	data.nb_compiles = cp_list[5];
 	data.dongle_cooldown = cp_list[6];
-
 	data.scheduler = scheduler;
 	free(*list);
 	*list = NULL;
 	if (!data.nb_coders)
 		exit(0);
-	pthread_mutex_init(&data.global_mutex, NULL);
-	pthread_cond_init(&data.cond, NULL);
-	
-
+	data.mutex_initialized = pthread_mutex_init(&data.global_mutex, NULL);
+	data.cond_initialized = pthread_cond_init(&data.cond, NULL);
+	if (data.cond_initialized != 0 || data.mutex_initialized != 0)
+		exit(0);
 	return data;
 }
