@@ -187,7 +187,12 @@ Checks worth running on every scenario:
 
 **Classic references**
 
-- UNderstanding Heap: (https://www.youtube.com/watch?v=d9s_d28yJq0&t=3s)
+- [Understanding Heaps and Priority Queues — Explains heap data structures and how priority queues organize elements by priority.](https://www.youtube.com/watch?v=HqPJF2L5h9U&t=1721s)
+
+- [Understanding Thread Logic and Thread Functions — Introduces multithreading concepts and thread functions for understanding concurrent program execution.](https://www.youtube.com/watch?v=d9s_d28yJq0&t=3s)
+
+
+
 **How AI was used**
 
 An AI assistant (Claude) was used as a learning partner and reviewer, not to write the project code.
