@@ -1,5 +1,17 @@
-#ifndef CODEXION_HEADER
-# define CODEXION_HEADER
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   codexion_header.h                                  :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hamine <hamine@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/20 18:29:22 by hamine            #+#    #+#             */
+/*   Updated: 2026/10/20 18:51:55 by hamine           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
+#ifndef CODEXION_HEADER_H
+# define CODEXION_HEADER_H
 
 # include <pthread.h>
 # include <stdio.h>
@@ -138,7 +150,7 @@ void					free_and_exit(t_data *datta);
 // monitor:
 t_monitor				*start_monitor(t_coder **coders, int time_to_burnout,
 							t_data *datta);
-int						checks_simulation(t_coder *cooder);
+int						checks_simulation(t_coder *cooder, char *str);
 void					*monitor_check(void *arg);
 
 // Parsing functions:

@@ -1,4 +1,4 @@
-CFLAGS = -Wall -Wextra -pthread 
+CFLAGS = -Wall -Wextra -Werror -pthread 
 LIB_NAME = lib_codexion.a
 HEADER = codexion_header.h
 RM = rm -rf
@@ -8,17 +8,13 @@ SRCS = tools1.c heap.c edf.c fifo.c monitor.c coder_functions.c \
 
 OBJS = $(SRCS:.c=.o)
 
-
-all: $(LIB_NAME)
+all: $(LIB_NAME) run
 
 $(LIB_NAME): $(OBJS)
 	ar rcs $(LIB_NAME) $(OBJS)
 
-
-
 %.o: %.c $(HEADER)
 	gcc $(CFLAGS) -c $< -o $@
-
 
 run: 
 	gcc $(CFLAGS) main.c -L. -l_codexion -o codexion

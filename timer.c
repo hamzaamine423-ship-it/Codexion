@@ -1,11 +1,22 @@
-#define _POSIX_C_SOURCE 200809L
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   timer.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hamine <hamine@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/20 18:29:12 by hamine            #+#    #+#             */
+/*   Updated: 2026/10/20 18:58:37 by hamine           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion_header.h"
 
 int	ft_sleep(int sleep_time, t_coder *cooder, int in_compile)
 {
 	while (sleep_time > 10)
 	{
-		if (!checks_simulation(cooder))
+		if (!checks_simulation(cooder, ""))
 		{
 			if (in_compile)
 				recovery_dongles(cooder);

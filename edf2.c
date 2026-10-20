@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   edf2.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hamine <hamine@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/20 18:29:39 by hamine            #+#    #+#             */
+/*   Updated: 2026/10/20 18:55:41 by hamine           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion_header.h"
 
 int	take_dongles_edf2(t_coder *cooder)
@@ -14,7 +26,7 @@ int	take_dongles_edf2(t_coder *cooder)
 	}
 	while (1)
 	{
-		if (!checks_simulation(cooder))
+		if (!checks_simulation(cooder, ""))
 		{
 			pthread_mutex_unlock(&cooder->right_dongle->d_mutex);
 			pthread_mutex_unlock(&cooder->left_dongle->d_mutex);
@@ -32,7 +44,7 @@ int	take_dongles_edf(t_heap *heapp, t_coder *cooder)
 	while (1)
 	{
 		pthread_mutex_lock(&heapp->h_mutex);
-		if (!checks_simulation(cooder))
+		if (!checks_simulation(cooder, ""))
 		{
 			pthread_mutex_unlock(&heapp->h_mutex);
 			return (0);

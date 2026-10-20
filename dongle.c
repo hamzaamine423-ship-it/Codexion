@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   dongle.c                                           :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hamine <hamine@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/20 18:29:33 by hamine            #+#    #+#             */
+/*   Updated: 2026/10/20 18:53:46 by hamine           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion_header.h"
 
 int	taking_dongles(t_coder *cooder)
@@ -12,10 +24,12 @@ int	taking_dongles(t_coder *cooder)
 	current_time -= cooder->datta->start_time;
 	left->taken = 1;
 	right->taken = 1;
-	if (!checks_simulation(cooder))
-		return (1);
-	put_str_codexion(cooder->index, current_time, "has taken a dongle\n");
-	put_str_codexion(cooder->index, current_time, "has taken a dongle\n");
+	if (checks_simulation(cooder, "print"))
+	{
+		put_str_codexion(cooder->index, current_time, "has taken a dongle\n");
+		put_str_codexion(cooder->index, current_time, "has taken a dongle\n");
+		pthread_mutex_unlock(&cooder->datta->global_mutex);
+	}
 	return (1);
 }
 

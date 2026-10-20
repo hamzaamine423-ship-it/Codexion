@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   fifo2.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hamine <hamine@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/20 18:29:44 by hamine            #+#    #+#             */
+/*   Updated: 2026/10/20 18:56:10 by hamine           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion_header.h"
 
 int	take_dongles_fifo2(t_coder *cooder)
@@ -14,7 +26,7 @@ int	take_dongles_fifo2(t_coder *cooder)
 	}
 	while (1)
 	{
-		if (!checks_simulation(cooder))
+		if (!checks_simulation(cooder, ""))
 		{
 			pthread_mutex_unlock(&cooder->right_dongle->d_mutex);
 			pthread_mutex_unlock(&cooder->left_dongle->d_mutex);
@@ -32,7 +44,7 @@ int	take_dongles_fifo(t_queue *queuee, t_coder *cooder)
 	while (1)
 	{
 		pthread_mutex_lock(&queuee->q_mutex);
-		if (!checks_simulation(cooder))
+		if (!checks_simulation(cooder, ""))
 		{
 			pthread_mutex_unlock(&queuee->q_mutex);
 			return (0);

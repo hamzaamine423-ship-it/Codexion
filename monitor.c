@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   monitor.c                                          :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hamine <hamine@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/20 18:29:54 by hamine            #+#    #+#             */
+/*   Updated: 2026/10/20 19:18:19 by hamine           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion_header.h"
 
-int	checks_simulation(t_coder *cooder)
+int	checks_simulation(t_coder *cooder, char *str)
 {
 	pthread_mutex_lock(&cooder->datta->global_mutex);
 	if (cooder->datta->simulation_stop == 1)
@@ -8,19 +20,21 @@ int	checks_simulation(t_coder *cooder)
 		pthread_mutex_unlock(&cooder->datta->global_mutex);
 		return (0);
 	}
-	pthread_mutex_unlock(&cooder->datta->global_mutex);
+	if (!ft_cmp(str, "print"))
+		pthread_mutex_unlock(&cooder->datta->global_mutex);
 	return (1);
 }
 
 int	check_burnout2(t_coder *cooder, long current_time)
 {
-	if (current_time > (cooder->last_compile + cooder->datta->time_to_burnout) + 10)
+	if (current_time + 10 > (cooder->last_compile
+			+ cooder->datta->time_to_burnout))
 	{
 		pthread_mutex_unlock(&cooder->c_mutex);
 		pthread_mutex_lock(&cooder->datta->global_mutex);
 		cooder->datta->simulation_stop = 1;
 		pthread_mutex_unlock(&cooder->datta->global_mutex);
-		put_str_codexion(cooder->index, current_time, "burned out\n");
+		put_str_codexion(cooder->index, current_time + 10, "burned out\n");
 		return (0);
 	}
 	return (1);

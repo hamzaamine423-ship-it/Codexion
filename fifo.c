@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   fifo.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hamine <hamine@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/20 18:29:41 by hamine            #+#    #+#             */
+/*   Updated: 2026/10/20 18:57:49 by hamine           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion_header.h"
 
 void	*go_fifo(void *arg)
@@ -11,7 +23,7 @@ void	*go_fifo(void *arg)
 	queuee = cooder->datta->queuee;
 	while (cooder->compile_count < datta->nb_compiles)
 	{
-		if (!checks_simulation(cooder))
+		if (!checks_simulation(cooder, ""))
 			break ;
 		pthread_mutex_lock(&queuee->q_mutex);
 		push_queue(queuee, cooder);
@@ -34,7 +46,7 @@ void	start_fifo(t_coder **coders, t_data datta)
 	{
 		while (1)
 		{
-			if (!checks_simulation(coders[0]))
+			if (!checks_simulation(coders[0], ""))
 				return ;
 		}
 	}

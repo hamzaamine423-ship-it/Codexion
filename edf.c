@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   edf.c                                              :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: hamine <hamine@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2026/10/20 19:18:04 by hamine            #+#    #+#             */
+/*   Updated: 2026/10/20 19:18:05 by hamine           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "codexion_header.h"
 
 void	*go_edf(void *arg)
@@ -11,7 +23,7 @@ void	*go_edf(void *arg)
 	heapp = cooder->datta->heapp;
 	while (cooder->compile_count < datta->nb_compiles)
 	{
-		if (!checks_simulation(cooder))
+		if (!checks_simulation(cooder, ""))
 			break ;
 		pthread_mutex_lock(&heapp->h_mutex);
 		push_heap(heapp, cooder);
@@ -34,7 +46,7 @@ void	start_edf(t_coder **coders, t_data datta)
 	{
 		while (1)
 		{
-			if (!checks_simulation(coders[0]))
+			if (!checks_simulation(coders[0], ""))
 				return ;
 		}
 	}
