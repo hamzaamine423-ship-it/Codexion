@@ -1,59 +1,54 @@
 #include "codexion_header.h"
 
-void* go_fifo(void* arg)
+void	*go_fifo(void *arg)
 {
-	Coder *coder;
-	Data *data;
-	Queue *queue;
+	t_coder	*cooder;
+	t_data	*datta;
+	t_queue	*queuee;
 
-	coder = (Coder *)arg;
-	data = coder->data;
-	queue = coder->data->queue;
-	while (coder->compile_count < data->nb_compiles)
+	cooder = (t_coder *)arg;
+	datta = cooder->datta;
+	queuee = cooder->datta->queuee;
+	while (cooder->compile_count < datta->nb_compiles)
 	{
-		if (!checks_simulation(coder))
-			break;
-    	pthread_mutex_lock(&queue->q_mutex);
-
-		push_queue(queue, coder);
-
-    	pthread_mutex_unlock(&queue->q_mutex);
-
-		if (!take_dongles_fifo(queue, coder))
-			break;
-	
-		if (!compiling(coder))
-			break;
+		if (!checks_simulation(cooder))
+			break ;
+		pthread_mutex_lock(&queuee->q_mutex);
+		push_queue(queuee, cooder);
+		pthread_mutex_unlock(&queuee->q_mutex);
+		if (!take_dongles_fifo(queuee, cooder))
+			break ;
+		if (!compiling(cooder))
+			break ;
 	}
-
-	return NULL; 
+	return (NULL);
 }
 
-void start_fifo(Coder** Coders, Data data)
+void	start_fifo(t_coder **coders, t_data datta)
 {
-	int i;
-	Coder* coder;
+	int		i;
+	t_coder	*cooder;
 
 	i = 0;
-	if (Coders[0]->data->nb_coders == 1)
+	if (coders[0]->datta->nb_coders == 1)
 	{
 		while (1)
 		{
-			if (!checks_simulation(Coders[0]))
-				return;
+			if (!checks_simulation(coders[0]))
+				return ;
 		}
 	}
-	while (i < data.nb_coders)
+	while (i < datta.nb_coders)
 	{
-		coder = Coders[i];
-		pthread_create(&coder->thread, NULL, &go_fifo, coder);
+		cooder = coders[i];
+		pthread_create(&cooder->thread, NULL, &go_fifo, cooder);
 		i++;
 	}
 	i = 0;
-	while (i < data.nb_coders)
+	while (i < datta.nb_coders)
 	{
-		coder = Coders[i];
-		pthread_join(coder->thread, NULL);
+		cooder = coders[i];
+		pthread_join(cooder->thread, NULL);
 		i++;
-	} 
+	}
 }

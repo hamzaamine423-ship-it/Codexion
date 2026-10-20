@@ -1,84 +1,65 @@
 #include "codexion_header.h"
 
-
-void check_heap(Heap heap)
+t_heap	*init_heap(t_data datta)
 {
-    for (int i = 0; i < heap.size; i++)
-    {
-        printf("heap[%d]: %d\n", i + 1, heap.Coders[i]->index);
-		fflush(stdout);
-    }
+	t_heap	*heapp;
+
+	heapp = malloc(sizeof(t_heap));
+	if (!heapp)
+		return (NULL);
+	heapp->size = 0;
+	heapp->coders = malloc(sizeof(t_coder *) * datta.nb_coders);
+	if (!heapp->coders)
+	{
+		free(heapp);
+		return (NULL);
+	}
+	heapp->cond_initialized = pthread_cond_init(&heapp->h_cond, NULL);
+	heapp->mutex_initialized = pthread_mutex_init(&heapp->h_mutex, NULL);
+	if (heapp->mutex_initialized != 0 || heapp->cond_initialized != 0)
+	{
+		free(heapp);
+		return (NULL);
+	}
+	return (heapp);
 }
 
-Heap* init_heap(Data data)
+void	push_heap2(t_heap *heapp, int child_i)
 {
-	Heap* heap;
-
-	heap = malloc(sizeof(Heap));
-	if (!heap)
-		return NULL;
-
-	heap->size = 0;
-    heap->Coders = malloc(sizeof(Coder *) * data.nb_coders);
-    if (!heap->Coders)
-    {
-        free(heap);
-        return NULL;
-    }
-	heap->cond_initialized = pthread_cond_init(&heap->h_cond, NULL);
-	heap->mutex_initialized = pthread_mutex_init(&heap->h_mutex, NULL);
-
-    if (heap->mutex_initialized != 0 || heap->cond_initialized != 0)
-    {
-        free(heap);
-        return NULL;
-    }
-
-	return heap;
-}
-
-void push_heap2(Heap* heap, int child_i)
-{
-	Coder* parent;
-	Coder* child;
-    int parent_i;
+	t_coder	*parent;
+	t_coder	*child;
+	int		parent_i;
 
 	while (1)
 	{
 		parent_i = child_i / 2;
-		parent = heap->Coders[parent_i - 1];
-		child = heap->Coders[child_i - 1];
-
+		parent = heapp->coders[parent_i - 1];
+		child = heapp->coders[child_i - 1];
 		if (parent->last_compile > child->last_compile)
 		{
-			heap->Coders[parent_i - 1] = child;
-			heap->Coders[child_i - 1] = parent;
+			heapp->coders[parent_i - 1] = child;
+			heapp->coders[child_i - 1] = parent;
 			child_i = parent_i;
 			if (child_i <= 1)
-				break;
+				break ;
 		}
 		else
-			break;
+			break ;
 	}
 }
 
-
-void push_heap(Heap* heap, Coder* new_coder)
+void	push_heap(t_heap *heapp, t_coder *new_coder)
 {
-    int child_i;
+	int	child_i;
 
-	if (!heap->size)
+	if (!heapp->size)
 	{
-		heap->Coders[0] = new_coder;
-        heap->size++;
-		return;
+		heapp->coders[0] = new_coder;
+		heapp->size++;
+		return ;
 	}
-	
-	heap->Coders[heap->size] = new_coder;
-	heap->size++;
-
-	child_i = heap->size;
-
-    push_heap2(heap, child_i);
+	heapp->coders[heapp->size] = new_coder;
+	heapp->size++;
+	child_i = heapp->size;
+	push_heap2(heapp, child_i);
 }
-

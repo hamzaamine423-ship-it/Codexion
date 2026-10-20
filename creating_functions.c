@@ -1,96 +1,94 @@
 #include "codexion_header.h"
 
-
-void	creating_coders2(Data *data, Coder *coder, int index)
+void	creating_coders2(t_data *datta, t_coder *cooder,
+						int index, t_dongle *left_d)
 {
-	coder->mutex_initialized = pthread_mutex_init(&coder->c_mutex, NULL);
-	if (coder->mutex_initialized != 0)
+	cooder->mutex_initialized = pthread_mutex_init(&cooder->c_mutex, NULL);
+	if (cooder->mutex_initialized != 0)
 	{
-		free_and_exit(data);
+		free_and_exit(datta);
 	}
-
-	coder->data = data;
-	coder->index = index;
-	coder->compile_count = 0;
-	coder->last_compile = -1;
+	cooder->left_dongle = left_d;
+	cooder->datta = datta;
+	cooder->index = index;
+	cooder->compile_count = 0;
+	cooder->last_compile = -1;
 }
 
-Coder	**creating_coders(Data *data)
+t_coder	**creating_coders(t_data *datta)
 {
-	Coder	**Coders_list;
-	Coder *coder;
-	int		i;
-	Dongle *dongle_l;
+	t_coder		**cooders_list;
+	t_coder		*cooder;
+	t_dongle	*dongle_l;
+	int			i;
 
-	Coders_list = malloc((*data).nb_coders * sizeof(Coder *));
-	if (!Coders_list)
-		return NULL;
+	cooders_list = malloc((*datta).nb_coders * sizeof(t_coder *));
+	if (!cooders_list)
+		return (NULL);
 	i = 1;
-	while (i <= (*data).nb_coders) 
+	while (i <= (*datta).nb_coders)
 	{
-		coder = malloc(sizeof(Coder));
-		dongle_l = create_dongle(i, data->dongle_cooldown);
-		if (!coder || !dongle_l)
-			free_and_exit(data);
-		coder->left_dongle = dongle_l;
-		creating_coders2(data, coder, i);	
+		cooder = malloc(sizeof(t_coder));
+		dongle_l = create_dongle(i, datta->dongle_cooldown);
+		if (!cooder || !dongle_l)
+			free_and_exit(datta);
+		creating_coders2(datta, cooder, i, dongle_l);
 		if (i > 1)
-			coder->right_dongle = Coders_list[i - 2]->left_dongle;
-		Coders_list[i - 1] = coder;
+			cooder->right_dongle = cooders_list[i - 2]->left_dongle;
+		cooders_list[i - 1] = cooder;
 		i++;
 	}
-	if ((*data).nb_coders > 1)
-		Coders_list[0]->right_dongle = Coders_list[(*data).nb_coders - 1]->left_dongle;
-	return Coders_list;
+	if ((*datta).nb_coders > 1)
+		cooders_list[0]->right_dongle = cooders_list[(*datta).nb_coders
+			- 1]->left_dongle;
+	return (cooders_list);
 }
 
-Dongle* create_dongle(int index, int dongle_cooldown)
+t_dongle	*create_dongle(int index, int dongle_cooldown)
 {
-	Dongle *dongle;
+	t_dongle	*doongle;
 
-	dongle = malloc(sizeof(Dongle));
-	if (!dongle)
-		return NULL;
-	dongle->mutex_initialized = pthread_mutex_init(&dongle->d_mutex, NULL);
-
-	if (dongle->mutex_initialized != 0)
+	doongle = malloc(sizeof(t_dongle));
+	if (!doongle)
+		return (NULL);
+	doongle->mutex_initialized = pthread_mutex_init(&doongle->d_mutex, NULL);
+	if (doongle->mutex_initialized != 0)
 	{
-		free(dongle);
-		return NULL;
+		free(doongle);
+		return (NULL);
 	}
-	dongle->index = index;
-	dongle->taken = 0;
-	dongle->released = -1;
-	dongle->coolddown = dongle_cooldown;
-
-	return dongle;
+	doongle->index = index;
+	doongle->taken = 0;
+	doongle->released = -1;
+	doongle->coolddown = dongle_cooldown;
+	return (doongle);
 }
 
-Data create_data(int** list, char* scheduler)
+t_data	create_data(int **list, char *scheduler)
 {
-	Data data;
-	int *cp_list;
+	t_data	datta;
+	int		*cp_list;
 
 	cp_list = *list;
-	data.heap = NULL;
-	data.queue = NULL;
-	data.monitor = NULL;
-	data.simulation_stop = 0;
-	data.nb_coders = cp_list[0];
-	data.time_to_burnout = cp_list[1];
-	data.time_to_compile = cp_list[2];
-	data.time_to_debug = cp_list[3];
-	data.time_to_refactor = cp_list[4];
-	data.nb_compiles = cp_list[5];
-	data.dongle_cooldown = cp_list[6];
-	data.scheduler = scheduler;
+	datta.heapp = NULL;
+	datta.queuee = NULL;
+	datta.moonitor = NULL;
+	datta.simulation_stop = 0;
+	datta.nb_coders = cp_list[0];
+	datta.time_to_burnout = cp_list[1];
+	datta.time_to_compile = cp_list[2];
+	datta.time_to_debug = cp_list[3];
+	datta.time_to_refactor = cp_list[4];
+	datta.nb_compiles = cp_list[5];
+	datta.dongle_cooldown = cp_list[6];
+	datta.scheduler = scheduler;
 	free(*list);
 	*list = NULL;
-	if (!data.nb_coders)
+	if (!datta.nb_coders)
 		exit(0);
-	data.mutex_initialized = pthread_mutex_init(&data.global_mutex, NULL);
-	data.cond_initialized = pthread_cond_init(&data.cond, NULL);
-	if (data.cond_initialized != 0 || data.mutex_initialized != 0)
+	datta.mutex_initialized = pthread_mutex_init(&datta.global_mutex, NULL);
+	datta.cond_initialized = pthread_cond_init(&datta.cond, NULL);
+	if (datta.cond_initialized != 0 || datta.mutex_initialized != 0)
 		exit(0);
-	return data;
+	return (datta);
 }

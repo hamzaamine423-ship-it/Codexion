@@ -1,49 +1,43 @@
 #include "codexion_header.h"
 
-
-void free_heap(Heap *heap)
+void	free_heap(t_heap *heapp)
 {
-	if (heap->mutex_initialized)
-		pthread_mutex_destroy(&heap->h_mutex);
-
-	if (heap->cond_initialized)
-		pthread_cond_destroy(&heap->h_cond);
-
-	free(heap->Coders);
-	heap->Coders = NULL;
-	free(heap);
-	heap = NULL;
+	if (heapp->mutex_initialized)
+		pthread_mutex_destroy(&heapp->h_mutex);
+	if (heapp->cond_initialized)
+		pthread_cond_destroy(&heapp->h_cond);
+	free(heapp->coders);
+	heapp->coders = NULL;
+	free(heapp);
+	heapp = NULL;
 }
 
-void free_queue(Queue *queue)
+void	free_queue(t_queue *queuee)
 {
-	if (queue->mutex_initialized)
-		pthread_mutex_destroy(&queue->q_mutex);
-
-	if (queue->cond_initialized)
-		pthread_cond_destroy(&queue->q_cond);
-
-	free(queue->Coders);
-	queue->Coders = NULL;
-	free(queue);
-	queue = NULL;
+	if (queuee->mutex_initialized)
+		pthread_mutex_destroy(&queuee->q_mutex);
+	if (queuee->cond_initialized)
+		pthread_cond_destroy(&queuee->q_cond);
+	free(queuee->coders);
+	queuee->coders = NULL;
+	free(queuee);
+	queuee = NULL;
 }
 
-
-void free_coders(Coder **Coders)
+void	free_coders(t_coder **coders)
 {
-	int i;
-	Data *data;
-	Coder *coder;
+	int		i;
+	t_data	*datta;
+	t_coder	*coder;
 
-	data = Coders[0]->data;
-
+	datta = coders[0]->datta;
 	i = 0;
-	while(i < (*data).nb_coders){
-		if (Coders[i])
+	while (i < (*datta).nb_coders)
+	{
+		if (coders[i])
 		{
-			coder = Coders[i];
-			if(coder->left_dongle)
+			coder = coders[i];
+			if (coder->left_dongle)
 			{
 				if (coder->left_dongle->mutex_initialized)
 					pthread_mutex_destroy(&coder->left_dongle->d_mutex);
@@ -52,36 +46,31 @@ void free_coders(Coder **Coders)
 			free(coder);
 		}
 		else
-			break;
+			break ;
 		i++;
 	}
-	free(Coders);
-
+	free(coders);
 }
 
-void free_and_exit(Data *data)
+void	free_and_exit(t_data *datta)
 {
-	if (data->Coders)
-		free_coders(data->Coders);
-
-	if (ft_cmp(data->scheduler, "edf"))
+	if (datta->coders)
+		free_coders(datta->coders);
+	if (ft_cmp(datta->scheduler, "edf"))
 	{
-		if (data->heap)
-			free_heap(data->heap);
+		if (datta->heapp)
+			free_heap(datta->heapp);
 	}
 	else
 	{
-		if (data->queue)
-			free_queue(data->queue);
+		if (datta->queuee)
+			free_queue(datta->queuee);
 	}
-
-	if (data->mutex_initialized)
-		pthread_mutex_destroy(&data->global_mutex);
-	
-	if (data->cond_initialized)
-		pthread_cond_destroy(&data->cond);
-
-	if (data->monitor)
-		free(data->monitor);
+	if (datta->mutex_initialized)
+		pthread_mutex_destroy(&datta->global_mutex);
+	if (datta->cond_initialized)
+		pthread_cond_destroy(&datta->cond);
+	if (datta->moonitor)
+		free(datta->moonitor);
 	exit(0);
 }

@@ -1,37 +1,35 @@
 #include "codexion_header.h"
 
-
-
-int atoi_error(int index)
+int	atoi_error(int index)
 {
 	printf("Error:\n    Argument number %d is incorrect !!\n", index);
 	printf("        the argument should be a positive integer\n");
-	return -1;
+	return (-1);
 }
 
-int _atoi(const char* str, int index)
+int	_atoi(const char *str, int index)
 {
-	int i;
-	long res;
+	int		i;
+	long	res;
 
 	i = 0;
 	res = 0;
 	while (str[i])
 	{
 		if (!(str[i] >= 48 && str[i] <= 57))
-			return atoi_error(index);
+			return (atoi_error(index));
 		res = res * 10 + (str[i] - 48);
 		if (res > 2147483647)
-			return atoi_error(index);
+			return (atoi_error(index));
 		i++;
 	}
-
 	return ((int)res);
 }
 
-void parse_scheduler(char* str)
+void	parse_scheduler(char *str)
 {
-	if (!ft_cmp(str, "edf") && !ft_cmp(str, "fifo")){
+	if (!ft_cmp(str, "edf") && !ft_cmp(str, "fifo"))
+	{
 		printf("Error:\n");
 		printf("    Type of the scheduler is incorrect !!\n");
 		printf("        the available options are: 'edf' or 'fifo'\n");
@@ -39,10 +37,10 @@ void parse_scheduler(char* str)
 	}
 }
 
-int* parse(int ac, char* av[])
+int	*parse(int ac, char *av[])
 {
-	int *list;
-	int i;
+	int	*list;
+	int	i;
 
 	if (ac != 9)
 	{
@@ -51,10 +49,9 @@ int* parse(int ac, char* av[])
 	}
 	list = malloc(7 * sizeof(int));
 	if (!list)
-		return NULL;
-
+		return (NULL);
 	i = 1;
-	while(i < ac - 1)
+	while (i < ac - 1)
 	{
 		if (_atoi(av[i], i) == -1)
 		{
@@ -65,5 +62,5 @@ int* parse(int ac, char* av[])
 		i++;
 	}
 	parse_scheduler(av[8]);
-	return list;
+	return (list);
 }

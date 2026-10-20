@@ -1,109 +1,93 @@
 #include "codexion_header.h"
 
-
-int checks_simulation(Coder *coder)
+int	checks_simulation(t_coder *cooder)
 {
-	pthread_mutex_lock(&coder->data->global_mutex);
-	if (coder->data->simulation_stop == 1)
+	pthread_mutex_lock(&cooder->datta->global_mutex);
+	if (cooder->datta->simulation_stop == 1)
 	{
-		pthread_mutex_unlock(&coder->data->global_mutex);
-		return 0;
+		pthread_mutex_unlock(&cooder->datta->global_mutex);
+		return (0);
 	}
-	pthread_mutex_unlock(&coder->data->global_mutex);
-	return 1;
+	pthread_mutex_unlock(&cooder->datta->global_mutex);
+	return (1);
 }
 
-int check_burnout2(Coder* coder, long current_time)
+int	check_burnout2(t_coder *cooder, long current_time)
 {
-	if (current_time > (coder->last_compile + coder->data->time_to_burnout))
+	if (current_time > (cooder->last_compile + cooder->datta->time_to_burnout) + 10)
 	{
-		pthread_mutex_unlock(&coder->c_mutex);
-		pthread_mutex_lock(&coder->data->global_mutex);
-		coder->data->simulation_stop = 1;
-		pthread_mutex_unlock(&coder->data->global_mutex);
-		put_str_codexion(coder->index, current_time, "burned out\n");
-		return 0;
+		pthread_mutex_unlock(&cooder->c_mutex);
+		pthread_mutex_lock(&cooder->datta->global_mutex);
+		cooder->datta->simulation_stop = 1;
+		pthread_mutex_unlock(&cooder->datta->global_mutex);
+		put_str_codexion(cooder->index, current_time, "burned out\n");
+		return (0);
 	}
-	return 1;
+	return (1);
 }
 
-
-int check_burnout(Coder** Coders)
+int	check_burnout(t_coder **coders)
 {
-	Coder *coder;
-	int j;
-	long current_time;
-	
+	t_coder	*cooder;
+	int		j;
+	long	current_time;
+
 	j = 0;
-	while (j < Coders[0]->data->nb_coders)
+	while (j < coders[0]->datta->nb_coders)
 	{
-		coder = Coders[j];
-		pthread_mutex_lock(&coder->c_mutex);
+		cooder = coders[j];
+		pthread_mutex_lock(&cooder->c_mutex);
 		current_time = gettime();
-    	current_time -= coder->data->start_time;
-        if (coder->compile_count == coder->data->nb_compiles)
-        {
+		current_time -= cooder->datta->start_time;
+		if (cooder->compile_count == cooder->datta->nb_compiles)
+		{
 			j++;
-			pthread_mutex_unlock(&coder->c_mutex);
-			continue;
+			pthread_mutex_unlock(&cooder->c_mutex);
+			continue ;
 		}
-    	if (!check_burnout2(coder, current_time))
-			return 0;
+		if (!check_burnout2(cooder, current_time))
+			return (0);
 		j++;
-		pthread_mutex_unlock(&coder->c_mutex);
+		pthread_mutex_unlock(&cooder->c_mutex);
 	}
-	return 1;
+	return (1);
 }
 
-
-int check_compiling(Coder **Coders)
+int	check_compiling(t_coder **coders)
 {
-	int compile_count;
-	Data *data;
-	int i;
+	int		compile_count;
+	t_data	*datta;
+	t_coder	*cooder;
+	int		i;
 
-	data = Coders[0]->data;
-	compile_count = data->nb_compiles;
-
+	datta = coders[0]->datta;
+	compile_count = datta->nb_compiles;
 	i = 0;
-	while (i < data->nb_coders)
+	while (i < datta->nb_coders)
 	{
-		if (compile_count != Coders[i]->compile_count)
-			return 0;
+		cooder = coders[i];
+		pthread_mutex_lock(&cooder->c_mutex);
+		if (compile_count != cooder->compile_count)
+		{
+			pthread_mutex_unlock(&cooder->c_mutex);
+			return (0);
+		}
+		pthread_mutex_unlock(&cooder->c_mutex);
 		i++;
 	}
-	return 1;
-
+	return (1);
 }
 
-
-void* monitor_check(void *arg)
+void	*monitor_check(void *arg)
 {
-	Coder **Coders;
+	t_coder	**coders;
 
-	Coders = (Coder **)arg;
-	while (!check_compiling(Coders))
+	coders = (t_coder **)arg;
+	while (!check_compiling(coders))
 	{
-		if (!check_burnout(Coders))
-			return NULL;
+		if (!check_burnout(coders))
+			return (NULL);
 		usleep(1000);
 	}
-
-	return NULL;
+	return (NULL);
 }
-
-
-Monitor* start_monitor(Coder **Coders, int burnout, Data *data)
-{
-	Monitor *monitor;
-
-	monitor = malloc(sizeof(Monitor));
-	if(!monitor)
-		free_and_exit(data);
-
-    monitor->burnout = burnout;
-	pthread_create(&monitor->thread, NULL, &monitor_check, Coders);
-
-	return monitor;
-}
-

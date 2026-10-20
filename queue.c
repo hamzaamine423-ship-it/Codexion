@@ -1,65 +1,49 @@
 #include "codexion_header.h"
 
-void check_queue(Queue queue)
+t_queue	*init_queue(t_data datta)
 {
-    for (int i = 0; i < queue.size; i++)
-    {
-        int pos = (queue.front + i) % queue.capacity;
+	t_queue	*queuee;
 
-        printf("Queue[%d] = %d\n",
-            i, queue.Coders[pos]->index);
-    }
+	queuee = malloc(sizeof(t_queue));
+	if (!queuee)
+		return (NULL);
+	queuee->front = 0;
+	queuee->rear = 0;
+	queuee->size = 0;
+	queuee->capacity = datta.nb_coders;
+	queuee->coders = malloc(sizeof(t_coder *) * datta.nb_coders);
+	if (!queuee->coders)
+	{
+		free(queuee);
+		return (NULL);
+	}
+	queuee->mutex_initialized = pthread_mutex_init(&queuee->q_mutex, NULL);
+	queuee->cond_initialized = pthread_cond_init(&queuee->q_cond, NULL);
+	if (queuee->mutex_initialized != 0 || queuee->cond_initialized != 0)
+	{
+		free(queuee);
+		return (NULL);
+	}
+	return (queuee);
 }
 
-
-Queue* init_queue(Data data)
+t_coder	*pop_queue(t_queue *queuee)
 {
-    Queue *queue;
+	t_coder	*coder;
 
-    queue = malloc(sizeof(Queue));
-    if (!queue)
-        return NULL;
-    queue->front = 0;
-    queue->rear = 0;
-    queue->size = 0;
-    queue->capacity = data.nb_coders;
-
-    queue->Coders = malloc(sizeof(Coder *) * data.nb_coders);
-    if (!queue->Coders)
-    {
-        free(queue);
-        return NULL;
-    }
-    queue->mutex_initialized = pthread_mutex_init(&queue->q_mutex, NULL);
-    queue->cond_initialized = pthread_cond_init(&queue->q_cond, NULL);
-
-    if (queue->mutex_initialized != 0|| queue->cond_initialized != 0)
-    {
-        free(queue);
-        return NULL;
-    }
-    return queue;
+	if (!queuee->size)
+		return (NULL);
+	coder = queuee->coders[queuee->front];
+	queuee->front = (queuee->front + 1) % queuee->capacity;
+	queuee->size--;
+	return (coder);
 }
 
-Coder* pop_queue(Queue *queue)
+void	push_queue(t_queue *queuee, t_coder *new_coder)
 {
-    Coder* coder;
-
-    if (!queue->size)
-        return NULL;
-    
-    coder = queue->Coders[queue->front];
-    queue->front = (queue->front + 1) % queue->capacity;
-    queue->size--;
-
-    return coder;
-}
-
-void push_queue(Queue *queue, Coder *new_coder)
-{
-    if (queue->size == queue->capacity)
-        return;
-    queue->Coders[queue->rear] = new_coder;
-    queue->rear = (queue->rear + 1) % queue->capacity;
-    queue->size++;
+	if (queuee->size == queuee->capacity)
+		return ;
+	queuee->coders[queuee->rear] = new_coder;
+	queuee->rear = (queuee->rear + 1) % queuee->capacity;
+	queuee->size++;
 }

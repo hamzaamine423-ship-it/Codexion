@@ -1,63 +1,60 @@
 #include "codexion_header.h"
 
-void start_function(Data *data)
+t_monitor	*start_monitor(t_coder **coders, int burnout, t_data *datta)
 {
-	Heap *heap;
-	Queue *queue;
+	t_monitor	*moonitor;
 
-	if (ft_cmp(data->scheduler, "edf"))
+	moonitor = malloc(sizeof(t_monitor));
+	if (!moonitor)
+		free_and_exit(datta);
+	moonitor->burnout = burnout;
+	pthread_create(&moonitor->thread, NULL, &monitor_check, coders);
+	return (moonitor);
+}
+
+void	start_function(t_data *datta)
+{
+	t_heap	*heapp;
+	t_queue	*queuee;
+
+	if (ft_cmp(datta->scheduler, "edf"))
 	{
-		heap = init_heap(*data);
-		if (!heap)
-			free_and_exit(data);
-		data->heap = heap;
-
-		start_edf(data->Coders, *data);
+		heapp = init_heap(*datta);
+		if (!heapp)
+			free_and_exit(datta);
+		datta->heapp = heapp;
+		start_edf(datta->coders, *datta);
 	}
 	else
 	{
-		queue = init_queue(*data);
-		if (!queue)
-			free_and_exit(data);
-
-		data->queue = queue;
-		start_fifo(data->Coders, *data);
+		queuee = init_queue(*datta);
+		if (!queuee)
+			free_and_exit(datta);
+		datta->queuee = queuee;
+		start_fifo(datta->coders, *datta);
 	}
 }
 
-void hamine(void)
+int	main(int ac, char *av[])
 {
-	system("leaks codexion");
-}
+	int			*list;
+	t_data		datta;
+	t_coder		**coders;
+	t_monitor	*moonitor;
 
-
-int main(int ac, char* av[])
-{
-	int *list;
-	Data data;
-	Coder **Coders;
-	Monitor *monitor;
-
-	// atexit(hamine);
 	list = parse(ac, av);
 	if (!list)
 		exit(0);
-	data = create_data(&list, av[8]);
-	Coders = creating_coders(&data);
-	if (!Coders)
+	datta = create_data(&list, av[8]);
+	coders = creating_coders(&datta);
+	if (!coders)
 		exit(0);
-
-	data.Coders = Coders;
-	data.start_time = gettime();
-	monitor = start_monitor(Coders, data.time_to_burnout, &data);
-	data.monitor = monitor;
-	start_function(&data);
-
-	pthread_join(monitor->thread, NULL);
-	free_and_exit(&data);
-
-	return 0;
+	datta.coders = coders;
+	datta.start_time = gettime();
+	moonitor = start_monitor(coders, datta.time_to_burnout, &datta);
+	datta.moonitor = moonitor;
+	start_function(&datta);
+	pthread_join(moonitor->thread, NULL);
+	free_and_exit(&datta);
+	return (0);
 }
-
-
-

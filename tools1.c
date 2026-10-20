@@ -1,17 +1,14 @@
 #include "codexion_header.h"
 
-
-void ft_putnbr(int nb)
+void	ft_putnbr(int nb)
 {
-	char c;
+	char	c;
 
 	if (nb >= 10)
 		ft_putnbr(nb / 10);
-
 	c = (nb % 10) + 48;
 	write(1, &c, 1);
 }
-
 
 int	ft_isalpha(int c)
 {
@@ -20,30 +17,28 @@ int	ft_isalpha(int c)
 	return (0);
 }
 
-int	ft_str_len(const char* str)
+int	ft_str_len(const char *str)
 {
-	int i;
+	int	i;
 
 	i = 0;
-	while(str[i])
+	while (str[i])
 		i++;
-
-	return i;
+	return (i);
 }
 
-int ft_cmp(const char* s1, const char* s2)
+int	ft_cmp(const char *s1, const char *s2)
 {
-	int i;
+	int	i;
 
 	if (ft_str_len(s1) != ft_str_len(s2))
-		return 0;
-
+		return (0);
 	i = 0;
-	while(s1[i]){
+	while (s1[i])
+	{
 		if (s1[i] != s2[i])
-			return 0;
+			return (0);
 		i++;
 	}
-
-	return 1;
+	return (1);
 }

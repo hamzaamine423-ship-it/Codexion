@@ -1,91 +1,83 @@
 #include "codexion_header.h"
 
-
-int	update_last_compile(Coder *coder, long current_time)
+int	update_last_compile(t_coder *cooder, long current_time)
 {
-	pthread_mutex_lock(&coder->c_mutex);
-	coder->last_compile = current_time;
-	pthread_mutex_unlock(&coder->c_mutex);
+	pthread_mutex_lock(&cooder->c_mutex);
+	cooder->last_compile = current_time;
+	pthread_mutex_unlock(&cooder->c_mutex);
 	return (0);
 }
 
-int	finish_compiling(Coder *coder, long *current_time)
+int	finish_compiling(t_coder *cooder, long *current_time)
 {
-	Data	*data;
+	t_data	*datta;
 
-	data = coder->data;
-	pthread_mutex_lock(&coder->c_mutex);
+	datta = cooder->datta;
+	pthread_mutex_lock(&cooder->c_mutex);
 	*current_time = gettime();
-	*current_time -= data->start_time;
-	coder->left_dongle->released = *current_time;
-	coder->right_dongle->released = *current_time;
-	recovery_dongles(coder);
-	coder->compile_count++;
-	pthread_mutex_unlock(&coder->c_mutex);
+	*current_time -= datta->start_time;
+	cooder->left_dongle->released = *current_time;
+	cooder->right_dongle->released = *current_time;
+	recovery_dongles(cooder);
+	cooder->compile_count++;
+	pthread_mutex_unlock(&cooder->c_mutex);
 	return (0);
 }
 
-int	compiling(Coder *coder)
+int	compiling(t_coder *cooder)
 {
 	long	current_time;
-	Data	*data;
+	t_data	*datta;
 
-	data = coder->data;
+	datta = cooder->datta;
 	current_time = gettime();
-	current_time -= data->start_time;
-	if (!checks_simulation(coder))
+	current_time -= datta->start_time;
+	if (!checks_simulation(cooder))
 	{
-		recovery_dongles(coder);
+		recovery_dongles(cooder);
 		return (0);
 	}
-	update_last_compile(coder, current_time);
-	put_str_codexion(coder->index, current_time, "is compiling\n");
-	usleep(data->time_to_compile * 1000);
-	if (!checks_simulation(coder))
+	update_last_compile(cooder, current_time);
+	put_str_codexion(cooder->index, current_time, "is compiling\n");
+	if (!ft_sleep(datta->time_to_compile, cooder, 1))
+		return (0);
+	if (!checks_simulation(cooder))
 	{
-		recovery_dongles(coder);
+		recovery_dongles(cooder);
 		return (0);
 	}
-	finish_compiling(coder, &current_time);
-	return (debugging(coder));
+	finish_compiling(cooder, &current_time);
+	return (debugging(cooder));
 }
 
-
-int debugging(Coder* coder)
+int	debugging(t_coder *cooder)
 {
-    long current_time;
-    Data *data;
+	long	current_time;
+	t_data	*datta;
 
-    data = coder->data;
-
-    current_time = gettime();
-    current_time -= data->start_time;
-
-    if (!checks_simulation(coder))
-        return 0;
-
-    put_str_codexion(coder->index, current_time, "is debugging\n");
-
-    usleep(data->time_to_debug * 1000);
-
-    return refactoring(coder);
+	datta = cooder->datta;
+	current_time = gettime();
+	current_time -= datta->start_time;
+	if (!checks_simulation(cooder))
+		return (0);
+	put_str_codexion(cooder->index, current_time, "is debugging\n");
+	if (!ft_sleep(datta->time_to_debug, cooder, 0))
+		return (0);
+	return (refactoring(cooder));
 }
 
-int refactoring(Coder *coder)
+int	refactoring(t_coder *cooder)
 {
-    long current_time;
-    Data* data;
+	long	current_time;
+	t_data	*datta;
 
-    data = coder->data;
-    current_time = gettime();
-    current_time -= data->start_time;
-
-    if (!checks_simulation(coder))
-        return 0;
-
-    
-    put_str_codexion(coder->index, current_time, "is refactoring\n");
-    
-    usleep(data->time_to_refactor * 1000);
-    return 1;
+	datta = cooder->datta;
+	current_time = gettime();
+	current_time -= datta->start_time;
+	if (!checks_simulation(cooder))
+		return (0);
+	put_str_codexion(cooder->index, current_time, "is refactoring\n");
+	if (!ft_sleep(datta->time_to_refactor, cooder, 0))
+		return (0);
+	return (1);
 }
