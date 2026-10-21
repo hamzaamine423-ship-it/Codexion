@@ -110,6 +110,7 @@ void					ft_putstr(const char *str);
 int						ft_isalpha(int c);
 int						ft_str_len(const char *str);
 int						ft_cmp(const char *s1, const char *s2);
+int						one_coder_case(t_coder *coder);
 
 // dongle functions:
 int						taking_dongles(t_coder *cooder);
@@ -118,12 +119,12 @@ void					recovery_dongles(t_coder *cooder);
 
 // Creating functions:
 t_coder					**creating_coders(t_data *datta);
-t_data					create_data(int **list, char *scheduler);
+t_data					create_data(int ac, char *av[]);
 t_donlge				*create_dongle(int index, int dongle_cooldown);
+int						validate_data(t_data data);
 
 // fifo_functions:
 int						take_dongles_fifo(t_queue *queuee, t_coder *cooder);
-void					check_queue(t_queue queuee);
 t_queue					*init_queue(t_data datta);
 t_coder					*pop_queue(t_queue *queuee);
 void					push_queue(t_queue *queuee, t_coder *new_coder);
@@ -131,7 +132,6 @@ void					remove_top_heap(t_heap *heapp);
 void					fix_heap(t_heap *heapp);
 
 // edf_functions:
-void					check_heap(t_heap heapp);
 t_heap					*init_heap(t_data datta);
 t_coder					*pop_heap(t_heap *heapp);
 int						take_dongles_edf(t_heap *heapp, t_coder *cooder);
@@ -140,22 +140,23 @@ void					remove_top_heap(t_heap *heapp);
 void					push_heap(t_heap *heapp, t_coder *new_coder);
 
 // start_functions:
-void					start_edf(t_coder **coders, t_data datta);
-void					start_fifo(t_coder **coders, t_data datta);
+int						start_edf(t_coder **coders, t_data *datta);
+int						start_fifo(t_coder **coders, t_data *datta);
 
 // Freing functions:
-void					free_coders(t_coder **coders_list);
-void					free_and_exit(t_data *datta);
+void					free_coders(t_coder **coders_list, t_data *data);
+void					*free_all(t_data *datta);
+void					free_heap(t_heap *heapp);
+void					free_queue(t_queue *queuee);
 
 // monitor:
-t_monitor				*start_monitor(t_coder **coders, int time_to_burnout,
-							t_data *datta);
+t_monitor				*start_monitor(t_coder **coders, t_data *datta);
 int						checks_simulation(t_coder *cooder, char *str);
 void					*monitor_check(void *arg);
 
 // Parsing functions:
 int						*parse(int ac, char *av[]);
-void					parse_scheduler(char *str);
+int						parse_scheduler(char *str);
 int						_atoi(const char *str, int nb);
 
 int						debugging(t_coder *cooder);

@@ -18,8 +18,11 @@ void	free_heap(t_heap *heapp)
 		pthread_mutex_destroy(&heapp->h_mutex);
 	if (heapp->cond_initialized)
 		pthread_cond_destroy(&heapp->h_cond);
-	free(heapp->coders);
-	heapp->coders = NULL;
+	if (heapp->coders)
+	{
+		free(heapp->coders);
+		heapp->coders = NULL;
+	}
 	free(heapp);
 	heapp = NULL;
 }
@@ -30,21 +33,22 @@ void	free_queue(t_queue *queuee)
 		pthread_mutex_destroy(&queuee->q_mutex);
 	if (queuee->cond_initialized)
 		pthread_cond_destroy(&queuee->q_cond);
-	free(queuee->coders);
-	queuee->coders = NULL;
+	if (queuee->coders)
+	{
+		free(queuee->coders);
+		queuee->coders = NULL;
+	}
 	free(queuee);
 	queuee = NULL;
 }
 
-void	free_coders(t_coder **coders)
+void	free_coders(t_coder **coders, t_data *data)
 {
 	int		i;
-	t_data	*datta;
 	t_coder	*coder;
 
-	datta = coders[0]->datta;
 	i = 0;
-	while (i < (*datta).nb_coders)
+	while (i < data->nb_coders)
 	{
 		if (coders[i])
 		{
@@ -54,20 +58,23 @@ void	free_coders(t_coder **coders)
 				if (coder->left_dongle->mutex_initialized)
 					pthread_mutex_destroy(&coder->left_dongle->d_mutex);
 				free(coder->left_dongle);
+				coder->left_dongle = NULL;
 			}
 			free(coder);
+			coder = NULL;
 		}
 		else
 			break ;
 		i++;
 	}
 	free(coders);
+	coders = NULL;
 }
 
-void	free_and_exit(t_data *datta)
+void	*free_all(t_data *datta)
 {
 	if (datta->coders)
-		free_coders(datta->coders);
+		free_coders(datta->coders, datta);
 	if (ft_cmp(datta->scheduler, "edf"))
 	{
 		if (datta->heapp)
@@ -83,6 +90,9 @@ void	free_and_exit(t_data *datta)
 	if (datta->cond_initialized)
 		pthread_cond_destroy(&datta->cond);
 	if (datta->moonitor)
+	{
 		free(datta->moonitor);
-	exit(0);
+		datta->moonitor = NULL;
+	}
+	return (NULL);
 }

@@ -36,31 +36,30 @@ void	*go_fifo(void *arg)
 	return (NULL);
 }
 
-void	start_fifo(t_coder **coders, t_data datta)
+int	start_fifo(t_coder **coders, t_data *datta)
 {
 	int		i;
 	t_coder	*cooder;
 
 	i = 0;
-	if (coders[0]->datta->nb_coders == 1)
-	{
-		while (1)
-		{
-			if (!checks_simulation(coders[0], ""))
-				return ;
-		}
-	}
-	while (i < datta.nb_coders)
+	if (!one_coder_case(coders[0]))
+		return (0);
+	while (i < (*datta).nb_coders)
 	{
 		cooder = coders[i];
-		pthread_create(&cooder->thread, NULL, &go_fifo, cooder);
+		if (pthread_create(&cooder->thread, NULL, &go_fifo, cooder) != 0)
+			return (0);
 		i++;
 	}
 	i = 0;
-	while (i < datta.nb_coders)
+	while (i < (*datta).nb_coders)
 	{
 		cooder = coders[i];
-		pthread_join(cooder->thread, NULL);
+		if (pthread_join(cooder->thread, NULL) != 0)
+			return (0);
 		i++;
 	}
+	if (pthread_join((*datta).moonitor->thread, NULL) != 0)
+		return (0);
+	return (1);
 }

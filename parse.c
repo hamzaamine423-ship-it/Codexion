@@ -26,6 +26,8 @@ int	_atoi(const char *str, int index)
 
 	i = 0;
 	res = 0;
+	if (str[i] == '+')
+		i++;
 	while (str[i])
 	{
 		if (!(str[i] >= 48 && str[i] <= 57))
@@ -38,15 +40,16 @@ int	_atoi(const char *str, int index)
 	return ((int)res);
 }
 
-void	parse_scheduler(char *str)
+int	parse_scheduler(char *str)
 {
 	if (!ft_cmp(str, "edf") && !ft_cmp(str, "fifo"))
 	{
 		printf("Error:\n");
 		printf("    Type of the scheduler is incorrect !!\n");
 		printf("        the available options are: 'edf' or 'fifo'\n");
-		exit(0);
+		return (0);
 	}
+	return (1);
 }
 
 int	*parse(int ac, char *av[])
@@ -57,7 +60,7 @@ int	*parse(int ac, char *av[])
 	if (ac != 9)
 	{
 		printf("The number of the arguments should be 8.\n");
-		exit(0);
+		return (NULL);
 	}
 	list = malloc(7 * sizeof(int));
 	if (!list)
@@ -68,11 +71,12 @@ int	*parse(int ac, char *av[])
 		if (_atoi(av[i], i) == -1)
 		{
 			free(list);
-			exit(0);
+			return (NULL);
 		}
 		list[i - 1] = _atoi(av[i], i);
 		i++;
 	}
-	parse_scheduler(av[8]);
+	if (!parse_scheduler(av[8]))
+		return (NULL);
 	return (list);
 }

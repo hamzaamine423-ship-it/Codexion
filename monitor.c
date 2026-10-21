@@ -27,14 +27,14 @@ int	checks_simulation(t_coder *cooder, char *str)
 
 int	check_burnout2(t_coder *cooder, long current_time)
 {
-	if (current_time + 10 > (cooder->last_compile
+	if (current_time > (cooder->last_compile
 			+ cooder->datta->time_to_burnout))
 	{
 		pthread_mutex_unlock(&cooder->c_mutex);
 		pthread_mutex_lock(&cooder->datta->global_mutex);
 		cooder->datta->simulation_stop = 1;
 		pthread_mutex_unlock(&cooder->datta->global_mutex);
-		put_str_codexion(cooder->index, current_time + 10, "burned out\n");
+		put_str_codexion(cooder->index, current_time, "burned out\n");
 		return (0);
 	}
 	return (1);
