@@ -17,7 +17,7 @@ $(LIB_NAME): $(OBJS)
 	gcc $(CFLAGS) -c $< -o $@
 
 run: 
-	gcc $(CFLAGS) main.c -L. -l_codexion -o codexion
+	gcc $(CFLAGS) codexion.c -L. -l_codexion -o codexion
 	./codexion 2 3000 200 200 200 1 400 edf
 
 clean: 
@@ -27,3 +27,5 @@ fclean:
 	$(RM) $(LIB_NAME) $(OBJS) codexion
 
 re : fclean all
+
+.PHONY: run clean fclean all re
